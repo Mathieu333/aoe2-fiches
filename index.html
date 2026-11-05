@@ -32,7 +32,11 @@
   .si .tr { font-weight: 700; } .si .tr::before { content: "SI "; color: var(--age); }
   .att { background: var(--warn-bg); color: var(--warn-ink); border-radius: 6px; padding: 8px 10px; margin-top: 10px; }
   details { margin-top: 2px; } summary { cursor: pointer; color: var(--mut); font-size: 12.5px; list-style: none; }
-  summary::-webkit-details-marker { display: none; } summary::before { content: "▸ pourquoi"; } details[open] summary::before { content: "▾ pourquoi"; }
+  summary::-webkit-details-marker { display: none; } summary::before { content: "▸ " attr(data-l); } details[open] > summary::before { content: "▾ " attr(data-l); }
+  details.more { margin-top: 14px; } details.more > summary { font-size: 14px; color: var(--acc); }
+  details.w { display: inline; margin-left: 4px; } details.w[open] { display: block; }
+  details.w > summary { display: inline-block; width: 17px; height: 17px; border-radius: 50%; border: 1px solid var(--line); text-align: center; line-height: 15px; font-size: 11px; vertical-align: 1px; }
+  details.w > summary::before, details.w[open] > summary::before { content: "?"; }
   .why { color: var(--mut); font-size: 13.5px; }
   .att .why { color: inherit; opacity: .8; }
   .empty { padding: 40px 0; color: var(--mut); font-size: 16px; }
@@ -45,6 +49,18 @@
   .st ul { padding-left: 0; } .st li { list-style: none; margin: 5px 0; }
   .wr { font-variant-numeric: tabular-nums; white-space: nowrap; } .up { color: #3fb27f; } .dn { color: #e0605a; }
   .lead { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin: 6px 0; }
+  .hero { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; } .hero b { font-size: 24px; }
+  .big { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; } .mut { color: var(--mut); font-size: 13px; }
+  .good { color: #3fb27f; } .bad { color: #e0605a; } .flat { color: var(--ink); }
+  .bars { display: grid; gap: 7px; margin-top: 8px; }
+  .bar { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(40px, 1fr) 3em; align-items: center; gap: 8px; font-size: 14px; }
+  table.civs { max-width: 560px; }
+  .bar .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .track { height: 9px; background: var(--line); border-radius: 5px; overflow: hidden; } .fill { height: 100%; background: var(--age, var(--acc)); }
+  .bar .v { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .legend { font-size: 12px; color: var(--mut); margin-top: 8px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
 </style>
 <div class="wrap">
   <header>
@@ -67,7 +83,9 @@
   const AGE = { 2: 'FÉODAL', 3: 'CASTLE', 4: 'IMPÉRIAL' };
   const $ = id => document.getElementById(id);
   const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);
-  const why = t => '<details><summary></summary><div class="why">' + esc(t) + '</div></details>';
+  // « ? » en fin de ligne : le pourquoi se déplie au clic, au lieu d'une ligne de plus par conseil.
+  const why = t => '<details class="w"><summary title="Pourquoi ?"></summary><div class="why">' + esc(t) + '</div></details>';
+  const more = (label, html) => '<details class="more"><summary data-l="' + esc(label) + '"></summary>' + html + '</details>';
   const item = i => '<li>' + esc(i.action) + why(i.why) + '</li>';
   const civs = [...new Set(CARDS.flatMap(e => [e.card.mine, e.card.theirs]))].sort();
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -79,58 +97,83 @@
     history.replaceState(null, '', '#' + slug(m) + '--' + slug(t));
     if (!e) { $('view').innerHTML = '<div class="empty">Aucune fiche préparée pour ' + esc(m) + ' → ' + esc(t) + '.</div>'; return; }
     const c = e.card;
+    // Lisible en 4 s : le plan, puis par âge l'objectif et quoi faire. Le reste se déplie.
     $('view').innerHTML = '<div class="ttl"><b>' + esc(c.mine) + ' → ' + esc(c.theirs) + '</b>'
-      + (e.status === 'validated' ? '' : '<span class="draft">BROUILLON — pas encore validée par le joueur</span>') + '</div>'
-      + '<div class="gp">' + esc(c.gamePlan.action) + '</div>' + why(c.gamePlan.why)
-      + '<p class="their"><b>Son plan :</b> ' + esc(c.theirPlan.action) + '</p>'
-      + '<div class="cols">' + c.phases.map(p => '<section class="a' + p.age + '"><div class="age-hd"><div class="an">' + AGE[p.age] + '</div><div class="goal">🎯 ' + esc(p.goal) + '</div></div>'
-        + '<h4>✅ Fais</h4><ul>' + p.do.map(item).join('') + '</ul>'
-        + '<h4>🔀 Si tu vois…</h4>' + p.ifSee.map(b => '<div class="si"><div class="tr">' + esc(b.trigger) + '</div><div>' + esc(b.action) + '</div>' + why(b.why) + '</div>').join('')
-        + (p.watch.length ? '<div class="att"><b>⚠ Attention</b><ul>' + p.watch.map(item).join('') + '</ul></div>' : '') + '</section>').join('') + '</div>'
-      + (c.uncertainties.length ? '<h4>À valider</h4><ul>' + c.uncertainties.map(u => '<li>' + esc(u) + '</li>').join('') + '</ul>' : '')
+      + (e.status === 'validated' ? '' : '<span class="draft" title="Pas encore validée par le joueur">BROUILLON</span>') + '</div>'
+      + '<div class="gp">' + esc(c.gamePlan.action) + why(c.gamePlan.why) + '</div>'
+      + more('Son plan', '<p class="their">' + esc(c.theirPlan.action) + '</p>')
+      + '<div class="cols" style="margin-top:16px">' + c.phases.map(p => '<section class="a' + p.age + '"><div class="age-hd"><div class="an">' + AGE[p.age] + '</div><div class="goal">🎯 ' + esc(p.goal) + '</div></div>'
+        + '<ul>' + p.do.map(item).join('') + '</ul>'
+        + (p.ifSee.length ? more('🔀 Si tu vois… (' + p.ifSee.length + ')', p.ifSee.map(b => '<div class="si"><div class="tr">' + esc(b.trigger) + '</div><div>' + esc(b.action) + '</div>' + why(b.why) + '</div>').join('')) : '')
+        + (p.watch.length ? more('⚠ Attention (' + p.watch.length + ')', '<div class="att"><ul>' + p.watch.map(item).join('') + '</ul></div>') : '') + '</section>').join('') + '</div>'
+      + (c.uncertainties.length ? more('À valider (' + c.uncertainties.length + ')', '<ul>' + c.uncertainties.map(u => '<li>' + esc(u) + '</li>').join('') + '</ul>') : '')
       + '<footer>' + esc(e.version) + ' · ' + esc(e.createdAt) + ' · données ' + esc(e.dataVersion) + '</footer>';
   }
   // Civ pages: what 1900+ players do on Arabia, measured on their replays.
-  const wr = t => { const [w, n] = t; if (n < 10) return '<span class="wr">' + w + '/' + n + ' gagnées</span>';
-    const p = w / n; return '<span class="wr">' + Math.round(100 * p) + ' % ±' + Math.round(196 * Math.sqrt(p * (1 - p) / n)) + ' (n=' + n + ')</span>'; };
   const pct = t => Math.round(100 * t[0] / t[1]);
   // « 69 % (entre 57 et 81 %) » : la fourchette à 95 %, plus lisible que « ±12 ».
   const range = t => { const [w, n] = t; if (n < 10) return w + ' sur ' + n;
     const p = w / n, e = 1.96 * Math.sqrt(p * (1 - p) / n);
     return Math.round(100 * p) + ' % (entre ' + Math.max(0, Math.round(100 * (p - e))) + ' et ' + Math.min(100, Math.round(100 * (p + e))) + ' %)'; };
   const civNames = STATS ? Object.keys(STATS.civs) : [];
-  const CAVEAT = STATS ? 'Mesuré sur ' + esc(STATS.scope) + ', replays relus le ' + esc(STATS.builtAt)
-    + '. Win rate ± marge d\'erreur à 95 %. Une unité = un clic de production ; « ≥ 20 % » = au moins 20 % des ressources militaires dépensées en Castle. '
-    + 'Corrélations, pas causes : un joueur déjà devant se paie les unités chères. <b>Pistes, pas preuves</b> : sur ' + STATS.tests
-    + ' comparaisons, ' + STATS.leads + ' passent le seuil de 95 % alors que le hasard en donnerait ~' + Math.round(STATS.tests * 0.05) + '.' : '';
+  // Noms courts pour la lecture rapide ; le nom complet reste au survol.
+  const SHORT = { 'Scout/cav. légère': 'Scouts', 'Archer/arbalète': 'Archers', 'Tirailleur': 'Tirailleurs', 'M@A/épée': 'M@A',
+    'FC sans armée': 'FC direct', 'Cav. archer': 'Cav. archers', 'Knight': 'Knights', 'Mangonel': 'Mangonels', 'Scorpion': 'Scorpions',
+    'Bélier': 'Béliers', 'Chameau': 'Chameaux', 'Eagle': 'Eagles' };
+  const nm = (s, castle) => String(s).split(' + ').map(p => p === 'Lancier/piquier' ? (castle ? 'Piquiers' : 'Lanciers')
+    : (SHORT[p] || p.replace(/ (Cavalry|Raider|Warrior|Archer)$/, ''))).join(' + ');
+  // Couleur seulement quand la fourchette à 95 % ne contient pas 50 % : sinon, c'est du bruit.
+  const tone = t => { const [w, n] = t; if (n < 10) return 'flat'; const p = w / n, e = 1.96 * Math.sqrt(p * (1 - p) / n);
+    return p - e > 0.5 ? 'good' : p + e < 0.5 ? 'bad' : 'flat'; };
+  const winNum = t => '<span class="' + tone(t) + '">' + (t[1] < 10 ? t[0] + '/' + t[1] : pct(t) + ' %') + '</span>';
+  const tip = (full, t, extra) => esc(full + ' — ' + t[1] + ' parties, gagne ' + range(t) + (extra || ''));
+  // Une ligne = nom · barre (part des parties) · % de victoires. Détail au survol.
+  const bars = (rows, total, castle) => '<div class="bars">' + rows.map(([label, t, extra]) =>
+    '<div class="bar" title="' + tip(label, t, extra) + '"><span class="lbl">' + esc(nm(label, castle)) + '</span>'
+    + '<span class="track"><span class="fill" style="display:block;width:' + Math.round(100 * t[1] / total) + '%"></span></span>'
+    + '<span class="v">' + winNum(t) + '</span></div>').join('') + '</div>';
+  const top = rows => { const big = rows.filter(r => r[1][1] >= 10); return (big.length ? big : rows).slice(0, 4); };
+  const leadText = l => esc(l[0].replace(/ ≥ 20 % en Castle$/, ' en Castle').replace(/^ouverture /, 'Ouverture ')
+    .replace(/^(Ouverture )?(.+?)( en Castle)?$/, (m, a, u, b) => (a || '') + nm(u, !!b) + (b || '')));
+  const CAVEAT = STATS ? '<p class="note">Replays ' + esc(STATS.scope) + ', relus le ' + esc(STATS.builtAt) + '. '
+    + '<b>Barre</b> = part des parties ; <b>chiffre</b> = % de victoires, en couleur seulement si l\'écart à 50 % dépasse la marge d\'erreur. '
+    + 'Ouverture = première unité produite à 3 exemplaires (M@A = milices avant l\'arrivée en Féodal). Castle = unités ≥ 20 % des ressources militaires. '
+    + 'Corrélations, pas causes. <b>Pistes, pas preuves</b> : ' + STATS.leads + ' écarts sur ' + STATS.tests + ' comparaisons passent le seuil, ~'
+    + Math.round(STATS.tests * 0.05) + ' attendus par hasard.</p>' : '';
   function overview() {
     const rows = civNames.map(c => [c, STATS.civs[c]]).sort((a, b) => pct(b[1].all) - pct(a[1].all));
-    $('view').innerHTML = '<p class="note">' + CAVEAT + '</p><table><tr><th>Civ</th><th>Win rate</th><th>Ouverture la plus jouée</th><th>Clic Castle</th><th>Piste la plus nette</th></tr>'
-      + rows.map(([c, d]) => '<tr><td><a href="#civ/' + slug(c) + '">' + esc(c) + '</a></td><td>' + wr(d.all) + '</td><td>'
-        + (d.openings[0] ? esc(d.openings[0][0]) + ' ' + Math.round(100 * d.openings[0][1][1] / d.all[1]) + ' %, win ' + pct(d.openings[0][1]) + ' %' : '-')
-        + '</td><td>' + esc(d.clicks[1]) + '</td><td>' + (d.leads[0] ? esc(d.leads[0][0]) + ' : ' + wr(d.leads[0][1]) + ' contre ' + wr(d.leads[0][2]) : '-') + '</td></tr>').join('') + '</table>';
+    $('view').innerHTML = '<table class="civs"><tr><th>Civ</th><th>Victoires</th><th>Ouvre surtout</th></tr>'
+      + rows.map(([c, d]) => '<tr title="' + tip(c, d.all) + '"><td><a href="#civ/' + slug(c) + '">' + esc(c) + '</a></td><td><b>' + winNum(d.all) + '</b></td><td>'
+        + (d.openings[0] ? esc(nm(d.openings[0][0])) : '-') + '</td></tr>').join('') + '</table>'
+      + more('Comment lire', CAVEAT);
   }
   function civPage(c) {
-    const d = STATS.civs[c];
-    const li = (label, t, extra) => '<li><b>' + esc(label) + '</b> — ' + wr(t) + (extra || '') + '</li>';
-    const cmp = (y, n) => ' contre ' + wr(n) + ' <span class="' + (pct(y) > pct(n) ? 'up">▲' : 'dn">▼') + '</span>';
-    $('view').innerHTML = '<div class="ttl"><b>' + esc(c) + '</b> ' + wr(d.all) + '</div>'
-      + '<p class="their">Clics médians : Féodal ' + esc(d.clicks[0]) + ' · Castle ' + esc(d.clicks[1]) + ' · Impérial ' + esc(d.clicks[2]) + '</p>'
-      + '<h4>Pistes (écart à 95 %, groupes ≥ 10)</h4>'
-      + (d.leads.length ? d.leads.map(l => '<div class="lead">' + esc(l[0]) + ' : ' + wr(l[1]) + cmp(l[1], l[2]) + '</div>').join('')
-        : '<p class="note">Aucune : l\'échantillon ne permet pas de conclure.</p>')
-      + '<div class="cols st">'
-      + '<section class="a2"><div class="age-hd"><div class="an">OUVERTURE</div><div class="goal">La première unité produite à 3 exemplaires avant le clic Castle (1-2 lanciers contre les scouts ne comptent pas). M@A = milices lancées avant l\'arrivée en Féodal.</div></div><ul>'
-        + d.openings.map(o => '<li><b>' + esc(o[0]) + '</b> · jouée dans ' + Math.round(100 * o[1][1] / d.all[1]) + ' % des parties (' + o[1][1] + ')'
-          + ' · <b>gagne ' + range(o[1]) + '</b> · clic Castle ' + esc(o[2]) + '</li>').join('') + '</ul></section>'
-      + '<section class="a3"><div class="age-hd"><div class="an">CASTLE</div><div class="goal">Armée du clic Castle au clic Impérial (' + d.castleN + ' joueurs)</div></div>'
-        + '<h4>Compositions (unités ≥ 20 %)</h4><ul>' + d.castle.map(m => li(m[0], m[1])).join('') + '</ul>'
-        + '<h4>Unité par unité : ≥ 20 % de l\'armée, ou non</h4><ul>' + d.units.map(u => li(u[0], u[1], cmp(u[1], u[2]))).join('') + '</ul></section>'
-      + '<section class="a4"><div class="age-hd"><div class="an">IMPÉRIAL</div><div class="goal">Armée après le clic (' + d.impN + ' joueurs) · clic : gagnants '
-        + esc(d.impClick[0]) + ', perdants ' + esc(d.impClick[1]) + '</div></div><ul>' + d.imperial.map(m => li(m[0], m[1])).join('') + '</ul></section></div>'
-      + '<h4>Techs prises en Castle</h4><table><tr><th>Tech</th><th>Joueurs</th><th>Gagnants</th><th>Perdants</th></tr>'
-        + d.techs.map(t => '<tr><td>' + esc(t[0]) + '</td><td>' + t[1] + ' %</td><td>' + t[2] + ' %</td><td>' + t[3] + ' %</td></tr>').join('') + '</table>'
-      + '<p class="note">' + CAVEAT + '</p>';
+    const d = STATS.civs[c], lead = d.leads[0];
+    const sign = l => pct(l[1]) > pct(l[2]) ? '<span class="up">▲</span> ' : '<span class="dn">▼</span> ';
+    const leadLine = l => '<div class="lead" title="' + esc(l[0] + ' — avec : ' + range(l[1]) + ', sans : ' + range(l[2])) + '">' + sign(l)
+      + '<b>' + leadText(l) + '</b> : ' + winNum(l[1]) + ' contre ' + winNum(l[2]) + '</div>';
+    const col = (age, title, rows, total, castle) => '<section class="a' + age + '"><div class="age-hd"><div class="an">' + title + '</div></div>'
+      + bars(top(rows), total, castle) + '</section>';
+    const list = (rows, castle) => '<ul>' + rows.map(([l, t, x]) => '<li>' + esc(nm(l, castle)) + ' — ' + range(t) + ' · ' + t[1] + ' parties' + (x || '') + '</li>').join('') + '</ul>';
+    $('view').innerHTML = '<div class="hero"><b>' + esc(c) + '</b><span class="big ' + tone(d.all) + '">' + pct(d.all) + ' %</span>'
+      + '<span class="mut">de victoires · ' + d.all[1] + ' parties 1900+ Arabia</span></div>'
+      + (lead ? leadLine(lead) : '')
+      + '<div class="cols">'
+      + col(2, 'OUVERTURE', d.openings.map(o => [o[0], o[1], ', clic Castle ' + o[2]]), d.all[1], false)
+      + col(3, 'CASTLE', d.castle, d.castleN, true)
+      + col(4, 'IMPÉRIAL', d.imperial, d.impN, true) + '</div>'
+      + '<div class="legend">barre = part des parties · chiffre = % de victoires (vert/rouge = au-delà de la marge d\'erreur)</div>'
+      + more('Détails', (d.leads.length > 1 ? '<h4>Autres pistes</h4>' + d.leads.slice(1).map(leadLine).join('') : '')
+        + '<h4>Clics médians</h4><p>Féodal ' + esc(d.clicks[0]) + ' · Castle ' + esc(d.clicks[1]) + ' · Impérial ' + esc(d.clicks[2])
+          + ' (gagnants ' + esc(d.impClick[0]) + ', perdants ' + esc(d.impClick[1]) + ')</p>'
+        + '<h4>Toutes les ouvertures</h4>' + list(d.openings.map(o => [o[0], o[1], ' · clic Castle ' + esc(o[2])]), false)
+        + '<h4>Toutes les compositions Castle</h4>' + list(d.castle, true)
+        + '<h4>Unité par unité en Castle : ≥ 20 % de l\'armée, contre sans</h4><ul>'
+          + d.units.map(u => '<li>' + esc(nm(u[0], true)) + ' — ' + range(u[1]) + ' contre ' + range(u[2]) + '</li>').join('') + '</ul>'
+        + '<h4>Toutes les compositions Impérial</h4>' + list(d.imperial, true)
+        + '<h4>Techs prises en Castle</h4><table><tr><th>Tech</th><th>Joueurs</th><th>Gagnants</th><th>Perdants</th></tr>'
+          + d.techs.map(t => '<tr><td>' + esc(t[0]) + '</td><td>' + t[1] + ' %</td><td>' + t[2] + ' %</td><td>' + t[3] + ' %</td></tr>').join('') + '</table>'
+        + CAVEAT);
   }
 
   const [hm, ht] = location.hash.slice(1).split('--');
