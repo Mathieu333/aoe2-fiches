@@ -62,7 +62,7 @@
   @media (max-width: 1000px) { .tiles { grid-template-columns: 1fr 1fr; } } @media (max-width: 560px) { .tiles { grid-template-columns: 1fr; } }
   .opt { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; font-size: 15px; } .opt span { white-space: nowrap; font-weight: 700; }
   .tile { background: var(--panel); border: 1px solid var(--line); border-top: 4px solid var(--age); border-radius: 8px; padding: 10px 14px; }
-  .tile .an { font-size: 12px; display: flex; justify-content: space-between; } .tile .leg { color: var(--mut); font-weight: 400; text-transform: none; }
+  .tile .an { font-size: 12px; }
   .opt [title] { cursor: help; } .tv { font-size: 22px; font-weight: 800; margin: 2px 0; }
   .gl { font-size: 17px; font-weight: 700; margin-top: 4px; }
   .bar .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -164,8 +164,7 @@
     + Math.round(STATS.tests * 0.05) + ' attendus par hasard.</p>' : '';
   // Une tuile par phase : les 3 choix les plus joués, % des joueurs · % de victoires.
   // Deux chiffres : à gauche la part des parties où l'option est jouée, à droite les victoires (S95).
-  const tile = (age, title, rows, total, castle) => '<div class="tile a' + age + '"><div class="an">' + title
-    + '<span class="leg">joué · gagné</span></div>'
+  const tile = (age, title, rows, total, castle) => '<div class="tile a' + age + '"><div class="an">' + title + '</div>'
     + (rows.length && total ? rows.slice(0, 3).map(r => { const used = Math.round(100 * r[1][1] / total), name = nm(r[0], castle);
       return '<div class="opt"><b title="' + tip(r[0], r[1]) + '">' + esc(name) + '</b><span>'
       + '<span class="mut" title="' + esc('Joué : ' + name + ' dans ' + used + ' % des parties (' + r[1][1] + ' sur ' + total + ')') + '">' + used + ' %</span> · '
