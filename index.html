@@ -141,7 +141,7 @@
   .ptms { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; margin-top: 4px; } .ptm { display: inline-flex; align-items: center; gap: 3px; cursor: help; }
   .hz { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(45deg, #c0504d66 0 3px, transparent 3px 7px); border-left: 1px solid #c0504d; border-right: 1px solid #c0504d; }
   .evn { position: absolute; right: -6px; top: -6px; min-width: 14px; height: 14px; padding: 0 2px; border-radius: 7px; background: var(--ink); color: var(--panel); font: 700 10px/14px system-ui; font-style: normal; text-align: center; pointer-events: none; }
-  .hzl { text-transform: none; letter-spacing: 0; font-weight: 600; color: #c0504d; margin-left: 8px; cursor: help; }
+  .hzl { text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 11px; color: #c0504d; cursor: help; }
   .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
 </style>
 <div class="wrap">
@@ -467,10 +467,26 @@
     const prod = (g.prod || [[], []]).flatMap((list, side) => list.map(b => prodLane(side, b))).join('');
     if (part === 'prod') return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
       + (prod ? '<div class="fam" title="Barres = le bâtiment produit ou recherche ; trous = file vide (pas cliqué ou pas les moyens). Survol du % pour le détail.">Production ⓘ</div><div></div>' + prod : '<p class="mut">Aucune production lue.</p>') + '</div>';
-    return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
-      + FAMILIES.map(([f, l]) => { const rows = f === 'unit' ? unitLanes() : lane('me', f) + lane('him', f);
-        const hs = f === 'unit' && (hTot(0) || hTot(1)) ? ' <span class="hzl" title="Hachures rouges = housé : population pleine alors qu’une unité attendait. Estimation (morts invisibles : après les combats, ça peut être des morts).">🏠 toi ' + mmss(hTot(0) * 1000) + ' · lui ' + mmss(hTot(1) * 1000) + '</span>' : '';
-        return rows ? '<div class="fam">' + esc(l) + '</div><div class="fam">' + hs + '</div>' + rows : ''; }).join('') + '</div>';
+    // Une seule ligne par joueur : tout y est (âges en bas, bâtiments, éco, forge, unités groupées,
+    // housé en hachures). Les icônes qui se chevauchent passent sur une sous-ligne.
+    const merged = side => { const w = side ? 'him' : 'me', c = side ? HIM_C : ME_C, items = [];
+      g.timeline[w].filter(e => e[3] !== 'unit').forEach(e => items.push([e[0], 'title="' + esc(e[2]) + ' — ' + mmss(e[0] * 1000) + '" data-s="' + e[0] + '">' + icon(e)]));
+      const by = {};
+      (g.unitsQ || []).filter(u => u[1] === side && u[2] !== 'Villager').forEach(u => (by[u[2]] = by[u[2]] || { pic: u[3], t: [] }).t.push(u[0]));
+      Object.entries(by).forEach(([nm, o]) => { const cl = [];
+        o.t.forEach(t => { const last = cl[cl.length - 1]; if (last && t - last[0] < W) last.push(t); else cl.push([t]); });
+        cl.forEach(x => items.push([x[0], 'title="' + x.length + ' ' + esc(nm) + (x.length > 1 ? ' de ' + mmss(x[0] * 1000) + ' à ' + mmss(x[x.length - 1] * 1000) : ' — ' + mmss(x[0] * 1000)) + ' (' + o.t.length + ' au total)" data-s="' + x[0] + '">'
+          + (o.pic != null ? '<img src="' + IMG('Unit', o.pic) + '" alt="">' : '<b>' + esc(nm.slice(0, 2)) + '</b>') + (x.length > 1 ? '<em class="evn">' + x.length + '</em>' : '')])); });
+      items.sort((a, b) => a[0] - b[0]);
+      const rows = [], html = items.map(([t, h]) => { let r = rows.findIndex(end => end <= t); if (r < 0) { r = rows.length; rows.push(0); } rows[r] = t + W * 0.75;
+        return '<span class="ev" style="left:' + pc(g, t) + ';top:' + (2 + r * 24) + 'px;bottom:auto;--c:' + c + '" ' + h + '</span>'; }).join('');
+      const H = Math.max(1, rows.length) * 24 + 20;
+      const ages = AGES.filter(a => g.ages[w][a]).map(a => { const [ck, r] = g.ages[w][a];
+        return '<span class="agebar" style="top:auto;bottom:1px;height:16px;left:' + pc(g, ck / 1000) + ';width:' + pc(g, (r - ck) / 1000) + ';--c:' + c + '" title="' + a + ' : clic ' + mmss(ck) + ', arrivée ' + mmss(r) + '" data-s="' + Math.ceil(r / 1000) + '"><b>' + a + '</b><em>' + mmss(r) + '</em></span>'; }).join('');
+      const ht = hTot(side);
+      return '<div class="lab" style="color:' + c + '">' + (side ? 'Lui' : 'Toi') + (ht ? '<br><span class="hzl" title="Hachures rouges = housé : population pleine alors qu’une unité attendait. Estimation (morts invisibles : après les combats, ça peut être des morts).">🏠' + mmss(ht * 1000) + '</span>' : '') + '</div>'
+        + '<div class="lane scrub" style="height:' + H + 'px">' + hz(side) + ages + html + '<i class="ph"></i></div>'; };
+    return '<div class="tl chrono">' + merged(0) + merged(1) + '</div>';
   }
 
   // Carte : terrain du début (une case = un losange), TC de départ, bâtiments à leur pose (la
