@@ -139,7 +139,9 @@
   .pon { margin-top: 2px; } .pon .pl2 { padding: 2px 0; } .pon .pu { width: 24px; height: 24px; font-size: 16px; }
   .ptot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 8px 0 2px; font-size: 14px; } .ptot b { font-size: 16px; }
   .ptms { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; margin-top: 4px; } .ptm { display: inline-flex; align-items: center; gap: 3px; cursor: help; }
-  .utk { position: absolute; top: 4px; width: 3px; height: 14px; margin-left: -1px; background: var(--c); border-radius: 1px; } .utk:hover { outline: 2px solid var(--ink); z-index: 2; }
+  .hz { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(45deg, #c0504d66 0 3px, transparent 3px 7px); border-left: 1px solid #c0504d; border-right: 1px solid #c0504d; }
+  .evn { position: absolute; right: -6px; top: -6px; min-width: 14px; height: 14px; padding: 0 2px; border-radius: 7px; background: var(--ink); color: var(--panel); font: 700 10px/14px system-ui; font-style: normal; text-align: center; pointer-events: none; }
+  .hzl { text-transform: none; letter-spacing: 0; font-weight: 600; color: #c0504d; margin-left: 8px; cursor: help; }
   .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
 </style>
 <div class="wrap">
@@ -441,13 +443,19 @@
     const lane = (w, fam) => { const ev = g.timeline[w].filter(e => e[3] === fam); if (!ev.length) return '';
       return who(w) + '<div class="lane scrub">' + ev.map(e => '<span class="ev" style="left:' + pc(g, e[0]) + ';--c:' + (w === 'me' ? ME_C : HIM_C) + '" title="' + esc(e[2]) + ' — ' + mmss(e[0] * 1000) + '" data-s="' + e[0] + '">'
         + icon(e) + '</span>').join('') + '<i class="ph"></i></div>'; };
-    // Une ligne par type d'unité et par joueur : un trait par unité mise en file, total à gauche.
+    // Une ligne par type d'unité et par joueur : icônes groupées (nombre si rapprochées), total à
+    // gauche ; moments housés du joueur en hachures rouges sur ses lignes.
+    const W = g.game_ms / 1000 * 0.035;
+    const hz = side => ((g.housed || [])[side] || []).map(([s, e]) => '<span class="hz" style="left:' + pc(g, s) + ';width:' + pc(g, e - s) + '" title="Housé ' + mmss(s * 1000) + ' → ' + mmss(e * 1000) + ' (' + (e - s) + ' s)"></span>').join('');
     const unitLanes = () => [0, 1].flatMap(side => { const by = {};
       (g.unitsQ || []).filter(u => u[1] === side && u[2] !== 'Villager').forEach(u => (by[u[2]] = by[u[2]] || { pic: u[3], t: [] }).t.push(u[0]));
-      return Object.entries(by).sort((a, b) => a[1].t[0] - b[1].t[0]).map(([nm, o]) => { const c = side ? HIM_C : ME_C;
+      return Object.entries(by).sort((a, b) => a[1].t[0] - b[1].t[0]).map(([nm, o]) => { const c = side ? HIM_C : ME_C, cl = [];
+        o.t.forEach(t => { const last = cl[cl.length - 1]; if (last && t - last[0] < W) last.push(t); else cl.push([t]); });
         return '<div class="lab" title="' + esc(nm) + (side ? ' (lui)' : ' (toi)') + ' : ' + o.t.length + ' mis en file"><span class="pl" style="--c:' + c + '">'
           + (o.pic != null ? '<img src="' + IMG('Unit', o.pic) + '" alt="">' : '') + '<b>' + o.t.length + '</b></span></div>'
-          + '<div class="lane scrub prod">' + o.t.map((t, i) => '<span class="utk" style="left:' + pc(g, t) + ';--c:' + c + '" title="' + esc(nm) + ' n°' + (i + 1) + ' — ' + mmss(t * 1000) + '"></span>').join('') + '<i class="ph"></i></div>'; }); }).join('');
+          + '<div class="lane scrub">' + hz(side) + cl.map(x => '<span class="ev" style="left:' + pc(g, x[0]) + ';--c:' + c + '" title="' + x.length + ' ' + esc(nm) + ' de ' + mmss(x[0] * 1000) + ' à ' + mmss(x[x.length - 1] * 1000) + '" data-s="' + x[0] + '">'
+            + (o.pic != null ? '<img src="' + IMG('Unit', o.pic) + '" alt="">' : '<b>' + esc(nm.slice(0, 2)) + '</b>') + (x.length > 1 ? '<em class="evn">' + x.length + '</em>' : '') + '</span>').join('') + '<i class="ph"></i></div>'; }); }).join('');
+    const hTot = side => ((g.housed || [])[side] || []).reduce((a, [s, e]) => a + e - s, 0);
     const TYPE_ID = { 'Town Center': 621, 'Archery Range': 87, Barracks: 12, Stable: 101, 'Siege Workshop': 49 };
     const prodLane = (side, b) => { const c = side ? HIM_C : ME_C, pic = g.buildingIcons[TYPE_ID[b.type]], end = g.game_ms / 1000;
       const first = b.busy[0][0], busy = b.busy.reduce((a, x) => a + x[1] - x[0], 0), pct = Math.round(100 * busy / Math.max(1, end - first));
@@ -459,14 +467,10 @@
     const prod = (g.prod || [[], []]).flatMap((list, side) => list.map(b => prodLane(side, b))).join('');
     if (part === 'prod') return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
       + (prod ? '<div class="fam" title="Barres = le bâtiment produit ou recherche ; trous = file vide (pas cliqué ou pas les moyens). Survol du % pour le détail.">Production ⓘ</div><div></div>' + prod : '<p class="mut">Aucune production lue.</p>') + '</div>';
-    const hLane = side => { const h = (g.housed || [])[side] || []; if (!h.length) return '';
-      const c = side ? HIM_C : ME_C, tot = h.reduce((a, [s, e]) => a + e - s, 0);
-      return '<div class="lab" title="' + (side ? 'Lui' : 'Toi') + ' : housé ≈ ' + mmss(tot * 1000) + ' au total"><span class="pl" style="--c:' + c + '">🏠<b>' + mmss(tot * 1000) + '</b></span></div>'
-        + '<div class="lane scrub prod">' + h.map(([s, e]) => '<span class="busy hs" style="left:' + pc(g, s) + ';width:' + pc(g, e - s) + ';--c:#c0504d" title="Housé ' + mmss(s * 1000) + ' → ' + mmss(e * 1000) + ' (' + (e - s) + ' s)"></span>').join('') + '<i class="ph"></i></div>'; };
-    const housedRows = hLane(0) + hLane(1);
     return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
-      + (housedRows ? '<div class="fam" title="Population pleine alors qu’une unité attendait (estimation : maisons comptées une fois finies, morts invisibles — après les combats, ça peut être des morts plutôt qu’un vrai housed).">Housé ⓘ</div><div></div>' + housedRows : '')
-      + FAMILIES.map(([f, l]) => { const rows = f === 'unit' ? unitLanes() : lane('me', f) + lane('him', f); return rows ? '<div class="fam">' + esc(l) + '</div><div></div>' + rows : ''; }).join('') + '</div>';
+      + FAMILIES.map(([f, l]) => { const rows = f === 'unit' ? unitLanes() : lane('me', f) + lane('him', f);
+        const hs = f === 'unit' && (hTot(0) || hTot(1)) ? ' <span class="hzl" title="Hachures rouges = housé : population pleine alors qu’une unité attendait. Estimation (morts invisibles : après les combats, ça peut être des morts).">🏠 toi ' + mmss(hTot(0) * 1000) + ' · lui ' + mmss(hTot(1) * 1000) + '</span>' : '';
+        return rows ? '<div class="fam">' + esc(l) + '</div><div class="fam">' + hs + '</div>' + rows : ''; }).join('') + '</div>';
   }
 
   // Carte : terrain du début (une case = un losange), TC de départ, bâtiments à leur pose (la
