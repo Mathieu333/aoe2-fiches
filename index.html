@@ -142,6 +142,7 @@
   .hz { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(45deg, #c0504d66 0 3px, transparent 3px 7px); border-left: 1px solid #c0504d; border-right: 1px solid #c0504d; }
   .evn { position: absolute; right: -6px; top: -6px; min-width: 14px; height: 14px; padding: 0 2px; border-radius: 7px; background: var(--ink); color: var(--panel); font: 700 10px/14px system-ui; font-style: normal; text-align: center; pointer-events: none; }
   .hzl { text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 11px; color: #c0504d; cursor: help; }
+  .c1 .lane.cl { border-left: 3px solid var(--c); } .csep { height: 6px; }
   #ctip { position: fixed; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 12.5px; box-shadow: 0 2px 10px #0006; max-width: 360px; }
   #ctip div { display: flex; align-items: center; gap: 6px; margin: 2px 0; } #ctip img { width: 22px; height: 22px; border-radius: 3px; }
   .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
@@ -495,11 +496,9 @@
       const [un, h2] = pack(units, c);
       const ages = AGES.filter(a => g.ages[w][a]).map(a => { const [ck, r] = g.ages[w][a];
         return '<span class="agebar" style="top:auto;bottom:1px;height:16px;left:' + pc(g, ck / 1000) + ';width:' + pc(g, (r - ck) / 1000) + ';--c:' + c + '" data-tip="' + a + ' : clic ' + mmss(ck) + ', arrivée ' + mmss(r) + '" data-s="' + Math.ceil(r / 1000) + '"><b>' + a + '</b><em>' + mmss(r) + '</em></span>'; }).join('');
-      const ht = hTot(side);
-      return '<div class="lab" style="color:' + c + '">' + (side ? 'Lui' : 'Toi') + '</div><div class="lane scrub" style="height:' + (h1 + 18) + 'px">' + ages + ev + '<i class="ph"></i></div>'
-        + '<div class="lab" style="color:' + c + ';font-size:11px">unités' + (ht ? '<br><span class="hzl" title="Hachures rouges = housé : population pleine alors qu’une unité attendait. Estimation (morts invisibles : après les combats, ça peut être des morts).">🏠' + mmss(ht * 1000) + '</span>' : '') + '</div>'
-        + '<div class="lane scrub" style="height:' + h2 + 'px">' + hz(side) + un + '<i class="ph"></i></div>'; };
-    return '<div class="tl chrono">' + merged(0) + merged(1) + '</div>';
+      return '<div class="lane scrub cl" style="height:' + (h1 + 18) + 'px;--c:' + c + '">' + ages + ev + '<i class="ph"></i></div>'
+        + '<div class="lane scrub cl" style="height:' + h2 + 'px;--c:' + c + '">' + hz(side) + un + '<i class="ph"></i></div>'; };
+    return '<div class="chrono c1">' + merged(0) + '<div class="csep"></div>' + merged(1) + '</div>';
   }
 
   // Carte : terrain du début (une case = un losange), TC de départ, bâtiments à leur pose (la
