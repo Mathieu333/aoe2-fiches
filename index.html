@@ -112,7 +112,7 @@
   .si2 img { width: 26px; height: 26px; border-radius: 3px; display: block; }
   .minfo { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; font-size: 13px; margin-bottom: 6px; }
   .resrow { display: flex; gap: 4px; flex-wrap: wrap; margin: 4px 0; } .res { display: inline-flex; align-items: center; gap: 3px; background: #2b241b; color: #f3e6c8; border-radius: 4px; padding: 2px 6px 2px 2px; cursor: help; }
-  .res img { width: 21px; height: 21px; display: block; } .res b { font-size: 16px; font-variant-numeric: tabular-nums; }
+  .res img { width: 21px; height: 21px; display: block; } .res b { font-size: 16px; font-variant-numeric: tabular-nums; } .clab { paint-order: stroke; stroke: var(--panel); font-weight: 700; }
   .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
 </style>
 <div class="wrap">
@@ -386,7 +386,7 @@
       + '<div class="mapwrap"><svg id="map" viewBox="' + view.vb.join(' ') + '"><polygon points="' + corner + '" class="ground"/>' + terr + '<g id="mlayer"></g></svg><div id="mtip" hidden></div></div>'
       + '<div class="legend">' + Object.entries(TERRAIN).filter(([k]) => g.terrain[k] && g.terrain[k].length).map(([k, c]) => '<span><i style="background:' + c + '"></i>' + TNAME[k] + '</span>').join('')
       + '<span><i style="background:#8c6a3c"></i>ferme</span><span><i style="background:#fff;border:1px solid var(--mut)"></i>porte</span><span><i style="background:#b9bcc2"></i>mur de pierre</span>'
-      + '<span><i style="background:' + ME_C + '"></i>toi</span><span><i style="background:' + HIM_C + '"></i>lui</span> · <span title="Estimé : chaque villageois récolte là où il a été envoyé, à vitesse moyenne, puis passe au tas voisin. Morts et upgrades non comptés.">ressources vidées : estimation ⓘ</span> · <span title="Le replay ne contient que les ordres : un mur cassé ou supprimé reste affiché, une fondation jamais construite aussi.">murs : posés, pas forcément debout ⓘ</span> · <span title="Le replay contient les ordres, pas la position des unités : on voit où tu as cliqué, pas où sont les unités.">• clic au sol, × clic sur une cible (20 dernières s) ⓘ</span> · molette = zoom, glisser = déplacer, survol = détail</div>';
+      + '<span><i style="background:' + ME_C + '"></i>toi</span><span><i style="background:' + HIM_C + '"></i>lui</span> · <span title="Estimé : chaque villageois récolte là où il a été envoyé, à vitesse moyenne, puis passe au tas voisin. Morts et upgrades non comptés.">ressources vidées : estimation ⓘ</span> · <span title="Le replay ne contient que les ordres : un mur cassé ou supprimé reste affiché, une fondation jamais construite aussi.">murs : posés, pas forcément debout ⓘ</span> · <span title="Le replay contient les ordres, pas la position des unités : on voit où tu as cliqué, pas où sont les unités.">◎ clic au sol, ⊗ clic sur une cible : l\'anneau rétrécit sur 30 s, le dernier reste affiché ⓘ</span> · molette = zoom, glisser = déplacer, survol = détail</div>';
   }
   // Emprise réelle des bâtiments (cases). Le replay donne le centre : entier si taille paire, ,5 si impaire.
   const SZ = { 'Town Center': 4, Castle: 4, Market: 4, University: 4, 'Siege Workshop': 4, Wonder: 5, House: 2, Mill: 2, 'Lumber Camp': 2, 'Mining Camp': 2, Donjon: 2,
@@ -437,11 +437,26 @@
     h += all.filter(b => bname(g, b) !== 'Farm').map((b, n) => { const pic = g.buildingIcons[b[2]] ?? g.buildingIcons['621'], [x, y, s] = box(g, b), [a, c] = P(b[3], b[4]);
       const sz = s * k * 1.15; if (pic == null || sz / z < 6) return '';
       return '<clipPath id="cp' + n + '"><polygon points="' + rect(P, x, y, s, s) + '"/></clipPath><image clip-path="url(#cp' + n + ')" href="' + IMG('Building', pic) + '" x="' + (a - sz / 2) + '" y="' + (c - sz / 2) + '" width="' + sz + '" height="' + sz + '"/>'; }).join('');
-    if ($('mclicks').checked) h += g.mapEvents.clicks.filter(c => c[0] <= t && c[0] > t - 20).map(c => { const [x, y] = P(c[2] + .5, c[3] + .5), o = (1 - (t - c[0]) / 20).toFixed(2);
-      return c[4] ? '<text x="' + x + '" y="' + y + '" fill="' + SIDE_C(c[1]) + '" opacity="' + o + '" font-size="' + (11 * z) + '" font-weight="700" text-anchor="middle" dy="0.35em">×</text>'
-        : '<circle cx="' + x + '" cy="' + y + '" r="' + (2.2 * z) + '" fill="' + SIDE_C(c[1]) + '" opacity="' + o + '"/>'; }).join('');
+    if ($('mclicks').checked) h += clickLayer(g, P, t, z);
     $('mlayer').innerHTML = h;
     $('mtime').textContent = mmss(t * 1000);
+  }
+  // Clics : comme en jeu, un anneau. Il rétrécit avec l'âge (30 s) ; le dernier clic de chacun
+  // reste toujours affiché, avec « il y a … ». Croix = clic sur une cible.
+  const CLICK_S = 30;
+  const ago = s => s < 60 ? s + ' s' : Math.floor(s / 60) + ' min ' + String(s % 60).padStart(2, '0');
+  const shownClicks = (g, t) => { const cs = g.mapEvents.clicks, out = cs.filter(c => c[0] <= t && c[0] > t - CLICK_S);
+    [0, 1].forEach(side => { if (!out.some(c => c[1] === side)) { const l = cs.filter(c => c[1] === side && c[0] <= t).pop(); if (l) out.push(l); } });
+    return out; };
+  function clickLayer(g, P, t, z) {
+    const cs = shownClicks(g, t), last = [0, 1].map(side => cs.filter(c => c[1] === side).pop());
+    return cs.map(c => { const [x, y] = P(c[2] + .5, c[3] + .5), a = t - c[0], col = SIDE_C(c[1]), isLast = c === last[c[1]];
+      const r = (isLast ? 9 : 3 + 6 * Math.max(0, 1 - a / CLICK_S)) * z, sw = (isLast ? 2 : 1.2) * z;
+      let m = '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="none" stroke="' + col + '" stroke-width="' + sw + '"/>';
+      if (c[4]) { const d = r * .6; m += '<path d="M' + (x - d) + ' ' + (y - d) + 'L' + (x + d) + ' ' + (y + d) + 'M' + (x + d) + ' ' + (y - d) + 'L' + (x - d) + ' ' + (y + d) + '" stroke="' + col + '" stroke-width="' + sw + '"/>'; }
+      else m += '<circle cx="' + x + '" cy="' + y + '" r="' + (1.2 * z) + '" fill="' + col + '"/>';
+      if (isLast) m += '<text class="clab" x="' + (x + r + 2 * z) + '" y="' + y + '" fill="' + col + '" font-size="' + (15 * z) + '" stroke-width="' + (3.5 * z) + '" dy=".35em">' + (c[1] ? 'lui' : 'toi') + ' · il y a ' + ago(a) + '</text>';
+      return m; }).join('');
   }
   function zoom(f, cx, cy) {
     const [x, y, w, h] = view.vb, nw = Math.min(W, Math.max(50, w * f)), nh = nw * h / w;
@@ -461,6 +476,9 @@
     tip.innerHTML = '<b>case ' + tx + ', ' + ty + '</b>' + (kind && !on ? ' · ' + ((g.species || {})[tx + ',' + ty] || TNAME[kind]) : '')
       + (on ? line(on[1], esc(bname(g, on)) + (on[5] ? ' de départ' : ' posé à ' + mmss(on[0] * 1000)) + who(on[1])) : '')
       + (wt ? line(wt[1], { pal: 'Palissade', stone: 'Mur de pierre', gate: 'Porte' }[wt[2]] + ' posée à ' + mmss(wt[0] * 1000) + who(wt[1])) : '');
+    if ($('mclicks').checked) { const [sx, sy] = pt(e), P = proj(g), z = view.vb[2] / W;
+      const near = shownClicks(g, curT).map(c => { const [a, b] = P(c[2] + .5, c[3] + .5); return [Math.hypot(a - sx, b - sy), c]; }).filter(([d]) => d < 9 * z).sort((a, b) => a[0] - b[0]);
+      near.slice(0, 3).forEach(([, c]) => { tip.innerHTML += '<br><span style="color:' + SIDE_C(c[1]) + '">Clic ' + (c[4] ? 'sur une cible' : 'au sol') + (c[1] ? ' (lui)' : ' (toi)') + ' à ' + mmss(c[0] * 1000) + ', il y a ' + ago(curT - c[0]) + '</span>'; }); }
     const r = $('map').parentNode.getBoundingClientRect();
     tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 10) + 'px'; tip.hidden = false;
   }
