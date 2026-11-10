@@ -126,6 +126,24 @@
   .gtabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; } .gtabs .mut { margin-left: 6px; font-size: 12.5px; }
   .verdict { font-size: 15px; margin: 4px 0 8px; } .hu { white-space: nowrap; margin-right: 6px; cursor: help; }
   .vrow { display: grid; grid-template-columns: 26px 1fr; gap: 6px; align-items: start; margin: 10px 0; padding-top: 4px; border-top: 1px dotted var(--line); } .vr { width: 24px; height: 24px; }
+  .vline { display: grid; grid-template-columns: 42px minmax(0, 1fr) 54px; align-items: center; gap: 4px; margin: 2px 0; font-size: 13px; } .vs { display: flex; flex-wrap: wrap; gap: 3px; } .vn { text-align: right; white-space: nowrap; } .vl { width: 46px; font-size: 11px; color: var(--mut); }
+  .vseg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 1px; padding: 1px 2px; border-radius: 4px; background: color-mix(in srgb, var(--c) 30%, transparent); border: 1px solid var(--c); cursor: help; }
+  .vseg.had { --c: #8a8f98; } .vf { width: 13px; height: 13px; border-radius: 2px; } .vb { width: 18px; height: 18px; border-radius: 3px; vertical-align: -4px; } .vu { font-size: 13px; }
+  .vleg2 { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; margin: 8px 0; } .vleg2 span { cursor: help; } .vleg2 i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
+  .vt { margin: 10px 0 4px; font-size: 13px; } .vtl { margin: 0; padding-left: 0; list-style: none; font-size: 13px; } .vtl li { margin: 3px 0; }
+  .pl { display: inline-flex; align-items: center; gap: 2px; border-left: 3px solid var(--c); padding-left: 2px; } .pl img { width: 18px; height: 18px; border-radius: 3px; } .pl b { font-size: 10.5px; }
+  .lane.prod { height: 22px; } .prod .from { position: absolute; top: 9px; height: 4px; background: var(--line); border-radius: 2px; }
+  .prod .busy { position: absolute; top: 5px; height: 12px; background: var(--c); border-radius: 2px; min-width: 1px; } .prod .busy:hover { outline: 2px solid var(--ink); }
+  .res.idle { background: #5a2a22; }
+  .eco { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } @media (max-width: 800px) { .eco { grid-template-columns: 1fr; } }
+  .ecoc h5 { margin: 0 0 6px; font-size: 15px; } .er { display: grid; grid-template-columns: 26px 1fr 64px; gap: 6px; align-items: center; margin: 6px 0; } .er img { width: 24px; height: 24px; }
+  .eb { position: relative; height: 13px; margin: 1px 0; cursor: help; } .eb i { display: block; height: 100%; border-radius: 2px; } .eb b { position: absolute; left: 4px; top: -1px; font-size: 10.5px; color: #fff; text-shadow: 0 0 2px #000; }
+  .eb.inc i, .eleg .inc { background: #4f9d69; } .eb.need i, .eleg .need { background: #c9a227; } .eb.spent i, .eleg .spent { background: #8a8f98; }
+  .eleg { display: flex; gap: 14px; font-size: 12.5px; margin-bottom: 4px; } .eleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+  .reper { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+  .gtabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; } .gtabs .mut { margin-left: 6px; font-size: 12.5px; }
+  .verdict { font-size: 15px; margin: 4px 0 8px; } .hu { white-space: nowrap; margin-right: 6px; cursor: help; }
+  .vrow { display: grid; grid-template-columns: 26px 1fr; gap: 6px; align-items: start; margin: 10px 0; padding-top: 4px; border-top: 1px dotted var(--line); } .vr { width: 24px; height: 24px; }
   .vline { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: 2px 0; font-size: 13px; } .vl { width: 46px; font-size: 11px; color: var(--mut); }
   .vseg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 1px; padding: 1px 2px; border-radius: 4px; background: color-mix(in srgb, var(--c) 30%, transparent); border: 1px solid var(--c); cursor: help; }
   .vseg.had { --c: #8a8f98; } .vf { width: 13px; height: 13px; border-radius: 2px; } .vb { width: 18px; height: 18px; border-radius: 3px; vertical-align: -4px; } .vu { font-size: 13px; }
@@ -448,9 +466,9 @@
       const rows = R.map(([r, img, nm]) => { const need = P.need[r] || 0, had = P.had[r] || 0, d = Math.round(had - need);
         const segs = items.filter(it => Math.round(it.v[r] || 0) > 0).map(it => '<span class="vseg" style="--c:' + it.c + '" title="' + tip(it) + '">' + icon(it) + figs(it.v[r]) + '</span>').join('');
         return '<div class="vrow"><img class="vr" src="https://aoe2techtree.net/img/' + img + '.png" alt="' + nm + '"><div>'
-          + '<div class="vline"><span class="vl">fallait</span>' + segs + ' <b>' + Math.round(need) + '</b></div>'
-          + '<div class="vline"><span class="vl">avais</span><span class="vseg had">' + figs(had) + '</span> <b>' + Math.round(had) + '</b>'
-          + (d ? ' <span class="' + (d < 0 ? 'bad' : 'good') + '">' + (d < 0 ? '−' + (-d) + ' manquants' : '+' + d + ' en trop') + '</span>' : '') + '</div></div></div>'; }).join('');
+          + '<div class="vline"><span class="vl">fallait</span><span class="vs">' + segs + '</span><span class="vn"><b>' + Math.round(need) + '</b></span></div>'
+          + '<div class="vline"><span class="vl">avais</span><span class="vs"><span class="vseg had">' + figs(had) + '</span></span><span class="vn"><b>' + Math.round(had) + '</b>'
+          + (d ? ' <span class="' + (d < 0 ? 'bad' : 'good') + '">' + (d < 0 ? '−' + (-d) : '+' + d) + '</span>' : '') + '</span></div></div></div>'; }).join('');
       const th = Math.round(R.reduce((a, [r]) => a + (P.had[r] || 0), 0)), tn = Math.round(R.reduce((a, [r]) => a + (P.need[r] || 0), 0));
       const mv = m => R.filter(([r]) => Math.abs(m[r] || 0) >= 2).map(([r, , nm]) => (m[r] < 0 ? '+' + (-m[r]) : '−' + m[r]) + ' ' + AU[nm]).join(', ');
       const v = P.kind === 'trop'
