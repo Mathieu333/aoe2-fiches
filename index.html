@@ -351,7 +351,7 @@
   // glisser, boutons), quart de tour et miroir mémorisés. Les icônes gardent leur taille à l'écran.
   const view = { rot: +(store('maprot') || 0), flip: store('mapflip') === '1', vb: null };
   const TERRAIN = { tree: '#2f6b3a', gold: '#e3c040', stone: '#9aa3ad', berries: '#d0508a', boar: '#7a4a2a', deer: '#c49a6c', sheep: '#f2f2f2' };
-  const TNAME = { tree: 'arbres', gold: 'or', stone: 'pierre', berries: 'baies', boar: 'grosse chasse', deer: 'petite chasse', sheep: 'troupeau' };
+  const TNAME = { tree: 'arbres', gold: 'or', stone: 'pierre', berries: 'baies', boar: 'chasse à attirer (sanglier, élan…)', deer: 'petite chasse (cerf, poulet…)', sheep: 'bétail (moutons, oies…)' };
   const W = 900;
   function proj(g) {
     const N = g.mapSize, k = W / (2 * N);
@@ -517,7 +517,7 @@
 
   // Instantané à l'instant choisi : âge, villageois par ressource (estimés), pierre restante,
   // bâtiments posés, unités produites, upgrades faites. Morts et destructions invisibles.
-  const KINDS = [['bois', '#8a6a3a'], ['fermes', '#c9a227'], ['baies', '#d0508a'], ['chasse', '#a0522d'], ['troupeau', '#cfcfcf'], ['moutons', '#cfcfcf'], ['or', '#e3c040'], ['pierre', '#9aa3ad'], ['?', '#666']];
+  const KINDS = [['bois', '#8a6a3a'], ['fermes', '#c9a227'], ['baies', '#d0508a'], ['chasse', '#a0522d'], ['bétail', '#cfcfcf'], ['troupeau', '#cfcfcf'], ['moutons', '#cfcfcf'], ['or', '#e3c040'], ['pierre', '#9aa3ad'], ['?', '#666']];
   function snapshot(g) {
     const t = curT, i = Math.min(Math.floor(t / g.snap.step), g.snap.vills[0].length - 1);
     const ageAt = w => { const done = AGES.filter(a => g.ages[w][a] && g.ages[w][a][1] <= t * 1000 + 999).pop() || 'Sombre';
@@ -530,11 +530,12 @@
       const v = g.snap.vills[side][i], tot = Object.values(v).reduce((a, b) => a + b, 0), stone = g.snap.stone[side][i];
       const mine = g.mapEvents.builds.filter(b => b[0] <= t && b[1] === side);
       const bname = b => g.buildingNames[b[2]];
-      const RES = [['wood', ['bois']], ['food', ['fermes', 'baies', 'chasse', 'troupeau', 'moutons']], ['gold', ['or']], ['stone', ['pierre']]];
+      const RES = [['wood', ['bois']], ['food', ['fermes', 'baies', 'chasse', 'bétail', 'troupeau', 'moutons']], ['gold', ['or']], ['stone', ['pierre']]];
       const rbar = '<div class="resrow">' + RES.map(([r, ks]) => { const n = ks.reduce((a, k) => a + (v[k] || 0), 0);
-        const det = ks.filter(k => v[k]).map(k => (k === 'moutons' ? 'troupeau' : k) + ' ' + v[k]).join(', ');
+        const LBL = { chasse: 'chasse (sanglier, élan, cerf…)', 'bétail': 'bétail (moutons, oies…)', troupeau: 'bétail (moutons, oies…)', moutons: 'bétail (moutons, oies…)' };
+        const det = ks.filter(k => v[k]).map(k => (LBL[k] || k) + ' : ' + v[k]).join('&#10;');
         return '<span class="res" title="' + (det || 'personne') + '"><img src="https://aoe2techtree.net/img/' + r + '.png" alt="' + r + '"><b>' + n + '</b></span>'; }).join('')
-        + (v['?'] ? '<span class="res mut" title="Villageois jamais cliqués et sans point de ralliement : souvent ceux de départ, sur les moutons ou le TC">? <b>' + v['?'] + '</b></span>' : '') + '</div>';
+        + (v['?'] ? '<span class="res mut" title="Inconnus : villageois sans ordre lisible (souvent ceux de départ), ou dont la ressource est épuisée sans nouvel ordre ensuite : morts, en construction, sur une ferme existante ou inactifs.">? <b>' + v['?'] + '</b></span>' : '') + '</div>';
       const bar = '<div class="vbar">' + KINDS.filter(([k]) => v[k]).map(([k, c]) => '<i style="flex:' + v[k] + ';background:' + c + '" title="' + k + ' : ' + v[k] + '"></i>').join('') + '</div>'
         + '<div class="vleg">' + KINDS.filter(([k]) => v[k]).map(([k, c]) => '<span><i style="background:' + c + '"></i>' + (k === '?' ? 'non suivis (moutons, TC…)' : k) + ' <b>' + v[k] + '</b></span>').join('') + '</div>';
       const builds = count(mine.filter(b => !['House', 'Farm', 'Palisade Wall', 'Stone Wall', 'Palisade Gate', 'Gate'].includes(bname(b))).map(b => [bname(b), g.buildingIcons[b[2]]]));
