@@ -459,7 +459,13 @@
     const prod = (g.prod || [[], []]).flatMap((list, side) => list.map(b => prodLane(side, b))).join('');
     if (part === 'prod') return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
       + (prod ? '<div class="fam" title="Barres = le bâtiment produit ou recherche ; trous = file vide (pas cliqué ou pas les moyens). Survol du % pour le détail.">Production ⓘ</div><div></div>' + prod : '<p class="mut">Aucune production lue.</p>') + '</div>';
+    const hLane = side => { const h = (g.housed || [])[side] || []; if (!h.length) return '';
+      const c = side ? HIM_C : ME_C, tot = h.reduce((a, [s, e]) => a + e - s, 0);
+      return '<div class="lab" title="' + (side ? 'Lui' : 'Toi') + ' : housé ≈ ' + mmss(tot * 1000) + ' au total"><span class="pl" style="--c:' + c + '">🏠<b>' + mmss(tot * 1000) + '</b></span></div>'
+        + '<div class="lane scrub prod">' + h.map(([s, e]) => '<span class="busy hs" style="left:' + pc(g, s) + ';width:' + pc(g, e - s) + ';--c:#c0504d" title="Housé ' + mmss(s * 1000) + ' → ' + mmss(e * 1000) + ' (' + (e - s) + ' s)"></span>').join('') + '<i class="ph"></i></div>'; };
+    const housedRows = hLane(0) + hLane(1);
     return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
+      + (housedRows ? '<div class="fam" title="Population pleine alors qu’une unité attendait (estimation : maisons comptées une fois finies, morts invisibles — après les combats, ça peut être des morts plutôt qu’un vrai housed).">Housé ⓘ</div><div></div>' + housedRows : '')
       + FAMILIES.map(([f, l]) => { const rows = f === 'unit' ? unitLanes() : lane('me', f) + lane('him', f); return rows ? '<div class="fam">' + esc(l) + '</div><div></div>' + rows : ''; }).join('') + '</div>';
   }
 
