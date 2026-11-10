@@ -123,6 +123,30 @@
   .eb.inc i, .eleg .inc { background: #4f9d69; } .eb.need i, .eleg .need { background: #c9a227; } .eb.spent i, .eleg .spent { background: #8a8f98; }
   .eleg { display: flex; gap: 14px; font-size: 12.5px; margin-bottom: 4px; } .eleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
   .reper { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+  .gtabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; } .gtabs .mut { margin-left: 6px; font-size: 12.5px; }
+  .verdict { font-size: 15px; margin: 4px 0 8px; } .hu { white-space: nowrap; margin-right: 6px; cursor: help; }
+  .pl { display: inline-flex; align-items: center; gap: 2px; border-left: 3px solid var(--c); padding-left: 2px; } .pl img { width: 18px; height: 18px; border-radius: 3px; } .pl b { font-size: 10.5px; }
+  .lane.prod { height: 22px; } .prod .from { position: absolute; top: 9px; height: 4px; background: var(--line); border-radius: 2px; }
+  .prod .busy { position: absolute; top: 5px; height: 12px; background: var(--c); border-radius: 2px; min-width: 1px; } .prod .busy:hover { outline: 2px solid var(--ink); }
+  .res.idle { background: #5a2a22; }
+  .eco { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } @media (max-width: 800px) { .eco { grid-template-columns: 1fr; } }
+  .ecoc h5 { margin: 0 0 6px; font-size: 15px; } .er { display: grid; grid-template-columns: 26px 1fr 64px; gap: 6px; align-items: center; margin: 6px 0; } .er img { width: 24px; height: 24px; }
+  .eb { position: relative; height: 13px; margin: 1px 0; cursor: help; } .eb i { display: block; height: 100%; border-radius: 2px; } .eb b { position: absolute; left: 4px; top: -1px; font-size: 10.5px; color: #fff; text-shadow: 0 0 2px #000; }
+  .eb.inc i, .eleg .inc { background: #4f9d69; } .eb.need i, .eleg .need { background: #c9a227; } .eb.spent i, .eleg .spent { background: #8a8f98; }
+  .eleg { display: flex; gap: 14px; font-size: 12.5px; margin-bottom: 4px; } .eleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+  .reper { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+  .gtabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; } .gtabs .mut { margin-left: 6px; font-size: 12.5px; }
+  .verdict { font-size: 15px; margin: 4px 0 8px; } .hu { white-space: nowrap; margin-right: 6px; cursor: help; }
+  .pl { display: inline-flex; align-items: center; gap: 2px; border-left: 3px solid var(--c); padding-left: 2px; } .pl img { width: 18px; height: 18px; border-radius: 3px; } .pl b { font-size: 10.5px; }
+  .lane.prod { height: 22px; } .prod .from { position: absolute; top: 9px; height: 4px; background: var(--line); border-radius: 2px; }
+  .prod .busy { position: absolute; top: 5px; height: 12px; background: var(--c); border-radius: 2px; min-width: 1px; } .prod .busy:hover { outline: 2px solid var(--ink); }
+  .res.idle { background: #5a2a22; }
+  .eco { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } @media (max-width: 800px) { .eco { grid-template-columns: 1fr; } }
+  .ecoc h5 { margin: 0 0 6px; font-size: 15px; } .er { display: grid; grid-template-columns: 26px 1fr 64px; gap: 6px; align-items: center; margin: 6px 0; } .er img { width: 24px; height: 24px; }
+  .eb { position: relative; height: 13px; margin: 1px 0; cursor: help; } .eb i { display: block; height: 100%; border-radius: 2px; } .eb b { position: absolute; left: 4px; top: -1px; font-size: 10.5px; color: #fff; text-shadow: 0 0 2px #000; }
+  .eb.inc i, .eleg .inc { background: #4f9d69; } .eb.need i, .eleg .need { background: #c9a227; } .eb.spent i, .eleg .spent { background: #8a8f98; }
+  .eleg { display: flex; gap: 14px; font-size: 12.5px; margin-bottom: 4px; } .eleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+  .reper { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
   .pl { display: inline-flex; align-items: center; gap: 2px; border-left: 3px solid var(--c); padding-left: 2px; } .pl img { width: 18px; height: 18px; border-radius: 3px; } .pl b { font-size: 10.5px; }
   .lane.prod { height: 22px; } .prod .from { position: absolute; top: 9px; height: 4px; background: var(--line); border-radius: 2px; }
   .prod .busy { position: absolute; top: 5px; height: 12px; background: var(--c); border-radius: 2px; min-width: 1px; } .prod .busy:hover { outline: 2px solid var(--ink); }
@@ -359,9 +383,11 @@
           + '</div><span class="' + (miss > 0 ? 'bad' : 'good') + '">' + (miss > 0 ? '−' + miss + ' vill.' : 'OK') + '</span></div>'; }).join('');
       const by = e.by.map(([type, unit, c, pct]) => '<li>' + esc(type) + ' · ' + esc(unit === 'Villager' ? 'villageois' : unit) + ' sans arrêt : '
         + R.filter(([r]) => c[r]).map(([r, , nm]) => c[r] + ' ' + nm + ' ≈ ' + (c[r] / rate(r)).toFixed(1) + ' vill.').join(' + ') + ' <span class="mut">(réel : occupé ' + pct + ' %)</span></li>').join('');
-      return '<div class="ecoc"><h5 style="color:' + (n ? HIM_C : ME_C) + '">' + (n ? 'Lui' : 'Toi') + ' <span class="mut">6 premières min de Castle (' + mmss(e.from * 1000) + ' → ' + mmss(e.to * 1000) + '), par minute</span></h5>' + rows
+      const short = R.map(([r, , nm]) => [Math.round((need(r) - (e.income[r] || 0)) / rate(r)), nm]).filter(([m]) => m > 0);
+      const verdict = '<p class="verdict">' + (short.length ? 'Pour tout tenir, il manquait ≈ ' + short.map(([m, nm]) => '<b>' + m + '</b> villageois ' + { nourriture: 'à la nourriture', bois: 'au bois', or: 'à l\'or' }[nm]).join(', ') + '.' : 'L\'éco suffisait pour tout tenir.') + '</p>';
+      return '<div class="ecoc"><h5 style="color:' + (n ? HIM_C : ME_C) + '">' + (n ? 'Lui' : 'Toi') + ' <span class="mut">6 premières min de Castle (' + mmss(e.from * 1000) + ' → ' + mmss(e.to * 1000) + '), par minute</span></h5>' + verdict + rows
         + '<ul class="reper">' + by + '</ul></div>'; };
-    return '<h4>Ton éco tenait-elle ta production ? <span class="mut" title="Revenu = estimation (villageois × vitesse moyenne). Besoin = chaque bâtiment de production utilisé, s\'il tournait sans arrêt, plus tes recherches. « −N vill. » = villageois qu\'il manquait sur cette ressource.">ⓘ</span></h4>'
+    return '<h4 style="margin-top:4px">Ton éco tenait-elle ta production ? <span class="mut" title="Revenu = estimation (villageois × vitesse moyenne). Besoin = chaque bâtiment de production utilisé, s\'il tournait sans arrêt, plus tes recherches. « −N vill. » = villageois qu\'il manquait sur cette ressource.">ⓘ</span></h4>'
       + '<div class="eleg"><span><i class="inc"></i>revenu estimé</span><span><i class="need"></i>besoin pour tout tenir</span><span><i class="spent"></i>dépensé</span></div>'
       + '<div class="eco">' + side(g.eco[0], 0) + side(g.eco[1], 1) + '</div>';
   }
@@ -376,7 +402,7 @@
   }
   // Chronologie : une ligne par famille et par joueur. Âges : une barre du clic à l'arrivée.
   const FAMILIES = [['tc', 'TC posés'], ['eco', 'Éco'], ['forge', 'Forge'], ['unit', 'Unités'], ['autre', 'Autres']];
-  function chrono(g) {
+  function chrono(g, part) {
     const icon = e => e[4] != null ? '<img src="https://aoe2techtree.net/img/' + e[4] + '.png" alt="">' : '<b>' + esc(e[2].slice(0, 3)) + '</b>';
     const who = w => '<div class="lab" style="color:' + (w === 'me' ? ME_C : HIM_C) + '">' + (w === 'me' ? 'Toi' : 'Lui') + '</div>';
     const ageLane = w => who(w) + '<div class="lane scrub">' + AGES.filter(a => g.ages[w][a]).map(a => { const [c, r] = g.ages[w][a];
@@ -394,8 +420,9 @@
         + b.busy.map(x => '<span class="busy" style="left:' + pc(g, x[0]) + ';width:' + pc(g, x[1] - x[0]) + ';--c:' + c + '" title="' + esc(x[2]) + ' ' + mmss(x[0] * 1000) + ' → ' + mmss(x[1] * 1000) + '"></span>').join('')
         + '<i class="ph"></i></div>'; };
     const prod = (g.prod || [[], []]).flatMap((list, side) => list.map(b => prodLane(side, b))).join('');
+    if (part === 'prod') return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
+      + (prod ? '<div class="fam" title="Barres = le bâtiment produit ou recherche ; trous = file vide (pas cliqué ou pas les moyens). Survol du % pour le détail.">Production ⓘ</div><div></div>' + prod : '<p class="mut">Aucune production lue.</p>') + '</div>';
     return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
-      + (prod ? '<div class="fam" title="Barres = le bâtiment produit ou recherche ; trous = file vide (pas cliqué ou pas les moyens). Survol du % pour le détail.">Production ⓘ</div><div></div>' + prod : '')
       + FAMILIES.map(([f, l]) => { const rows = lane('me', f) + lane('him', f); return rows ? '<div class="fam">' + esc(l) + '</div><div></div>' + rows : ''; }).join('') + '</div>';
   }
 
@@ -428,13 +455,15 @@
       + pts.map(([x, y]) => { const gt = (g.gone || {})[x + ',' + y]; return '<polygon points="' + diamond(P, x, y) + '"' + (gt != null ? ' data-g="' + gt + '"' : '') + '/>'; }).join('') + '</g>').join('');
     // Par joueur (carte symétrique) contre une Arabia classique : 2 sangliers, 3 cerfs, 8 moutons.
     const CLASSIC = { boar: [680, '🐗', '2 sangliers'], deer: [420, '🦌', '3 cerfs'], sheep: [800, '🐑', '8 moutons'] };
-    const per = { boar: [0, []], deer: [0, []], sheep: [0, []] };
-    Object.entries(g.hunt || {}).forEach(([key, n]) => { const [cat, nm, f] = key.split('|'); if (!per[cat] || f === 'None') return;
-      per[cat][0] += n * f / 2; per[cat][1].push(n / 2 + ' ' + nm + ' (' + f + ')'); });
-    const tot = Object.values(per).reduce((a, x) => a + x[0], 0), ref = 1900;
-    const hunt = tot ? Object.entries(CLASSIC).map(([c, [r, ic, lbl]]) => { const v = Math.round(per[c][0]), d = v - r;
-      return '<span title="Par joueur : ' + esc(per[c][1].join(', ') || 'rien') + '. Arabia classique : ' + lbl + ' = ' + r + '.">' + ic + ' ' + v + ' <span class="' + (d < 0 ? 'bad' : 'good') + '">' + (d >= 0 ? '+' : '') + d + '</span></span>'; }).join(' ')
-      + ' <span title="Chasse + bétail par joueur, contre ≈ 1 900 sur une Arabia classique">= <b>' + Math.round(tot) + '</b> <span class="mut">vs ≈' + ref + '</span></span>' : '';
+    const per = { boar: [0, [], false], deer: [0, [], false], sheep: [0, [], false] };
+    Object.entries(g.hunt || {}).forEach(([key, n]) => { const [cat, nm, f] = key.split('|'); if (!per[cat]) return;
+      if (f === 'None') per[cat][2] = true; else per[cat][0] += n * f / 2;
+      per[cat][1].push(n / 2 + ' ' + nm + ' (' + (f === 'None' ? '? de nourriture' : f + ' chacun') + ')'); });
+    const unknown = Object.values(per).some(x => x[2]), tot = Object.values(per).reduce((a, x) => a + x[0], 0);
+    const hunt = Object.values(per).some(x => x[1].length) ? Object.entries(CLASSIC).map(([c, [r, ic, lbl]]) => { const v = Math.round(per[c][0]), d = v - r;
+      return '<span class="hu" title="Sur la carte, par joueur : ' + esc(per[c][1].join(', ') || 'rien') + '&#10;Arabia classique (référence) : ' + lbl + ' = ' + r + ' de nourriture.">' + ic + ' '
+        + (per[c][2] ? '<b>?</b> <span class="mut">(réf. ' + r + ')</span>' : '<b>' + v + '</b> <span class="mut">(réf. ' + r + ')</span>') + '</span>'; }).join(' ')
+      + (unknown ? '' : ' <span title="Chasse + bétail par joueur, contre une Arabia classique">= <b>' + Math.round(tot) + '</b> <span class="mut">(réf. 1900)</span></span>') : '';
     const others = GAMES.filter(o => o.match !== g.match && o.apmAvg), mean = others.length ? Math.round(others.reduce((a, o) => a + o.apmAvg[0], 0) / others.length) : null;
     const KN = { ORDER: 'clics droits', MOVE: 'déplacements', STOP: 'stop', DE_QUEUE: 'production', GATHER_POINT: 'points de ralliement', BUILD: 'constructions', RESEARCH: 'recherches', PATROL: 'patrouilles', SPECIAL: 'commandes spéciales', DELETE: 'suppressions', WALL: 'murs' };
     const kinds = side => Object.entries((g.apmKinds || [])[side] || {}).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, n]) => n + ' ' + (KN[k] || k.toLowerCase())).join(', ');
@@ -629,6 +658,8 @@
     document.querySelectorAll('.ph').forEach(p => p.style.left = pc(G, curT));
   }
   function wireSnap() { document.querySelectorAll('[data-jump]').forEach(b => b.onclick = () => seek(+b.dataset.jump)); }
+  const GTABS = [['chrono', 'Chronologie'], ['prod', 'Production'], ['eco', 'Éco vs production'], ['graph', 'Graphe APM / villageois'], ['details', 'Détails']];
+  let gtab = GTABS.some(([k]) => k === store('gtab')) ? store('gtab') : 'chrono';
   function renderGame() {
     const g = G, both = civs.includes(g.mine) && civs.includes(g.vs);
     const ageRow = label => '<tr><td>' + label + '</td>' + ['me', 'him'].map(w => { const x = g.ages[w][label];
@@ -641,13 +672,15 @@
       + (both ? ' · <a href="#' + slug(g.mine) + '--' + slug(g.vs) + '">fiche du matchup</a>' : '') + '</span></div>'
       + '<ul class="flags big">' + g.flags.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>'
       + '<div class="mapsnap"><div>' + mapView(g) + '</div><div id="snapbox"></div></div>'
-      + '<h4>Chronologie <span class="mut">— clique ou fais glisser pour choisir l\'instant ; survol = nom</span></h4>' + chrono(g) + chart(g) + ecoBox(g)
-      + more('Détails', '<h4>Âges</h4><table><tr><th></th><th>Toi</th><th>Lui</th></tr>' + AGES.map(ageRow).join('')
+      + '<div class="gtabs">' + GTABS.map(([k, l]) => '<button class="fchip' + (gtab === k ? ' on' : '') + '" data-gtab="' + k + '">' + l + '</button>').join('')
+      + '<span class="mut">clique ou fais glisser une ligne pour choisir l\'instant</span></div>'
+      + (gtab === 'chrono' ? chrono(g) : gtab === 'prod' ? chrono(g, 'prod') : gtab === 'eco' ? ecoBox(g) : gtab === 'graph' ? chart(g) : '<div class="details">' + '<h4>Âges</h4><table><tr><th></th><th>Toi</th><th>Lui</th></tr>' + AGES.map(ageRow).join('')
         + g.vills.map(([m, a, b]) => '<tr><td>Villageois à ' + m + ' min</td><td>' + a + '</td><td>' + b + '</td></tr>').join('') + '</table>'
         + '<h4>File du TC vide (≥ 8 s)</h4><p>' + (g.gaps.map(([a, b]) => mmss(a) + ' → ' + mmss(b) + ' (' + Math.round((b - a) / 1000) + ' s)').join(', ') || 'aucune') + '</p>'
         + '<h4>Ressources dépensées (cumul)</h4><table><tr><th>min</th><th>Toi</th><th>Lui</th></tr>'
         + [5, 10, 15, 20, 25, 30, 40].filter(m => m <= g.spent[0].length).map(m => '<tr><td>' + m + '</td><td>' + g.spent[0][at(m)] + '</td><td>' + g.spent[1][at(m)] + '</td></tr>').join('') + '</table>'
-        + '<p class="note">Lu dans les ordres du replay : villageois et unités = mis en file (un villageois qui attend la bouffe ne se voit pas), ressources = dépensées au coût de base, morts invisibles. Vraies stats : écran de fin du jeu ou CaptureAge.</p>');
+        + '<p class="note">Lu dans les ordres du replay : villageois et unités = mis en file (un villageois qui attend la bouffe ne se voit pas), ressources = dépensées au coût de base, morts invisibles. Vraies stats : écran de fin du jeu ou CaptureAge.</p></div>');
+    document.querySelectorAll('[data-gtab]').forEach(b => b.onclick = () => { gtab = b.dataset.gtab; store('gtab', gtab); renderGame(); });
     document.querySelectorAll('[data-metric]').forEach(b => b.onclick = () => { metric = b.dataset.metric; renderGame(); });
     wireMap(g); wireScrub(g);
     seek(curT);
