@@ -486,7 +486,7 @@
         return '<span class="ev" style="left:' + pc(g, t) + ';top:' + (2 + r * 24) + 'px;bottom:auto;--c:' + c + '" data-tip="' + tip + '" data-s="' + t + '">' + h + '</span>'; }).join('');
       return [html, Math.max(1, rows.length) * 24 + 2]; };
     const merged = side => { const w = side ? 'him' : 'me', c = side ? HIM_C : ME_C;
-      const [ev, h1] = pack(g.timeline[w].filter(e => e[3] !== 'unit').map(e => [e[0], esc(e[2]) + ' — ' + mmss(e[0] * 1000), icon(e)]), c);
+      const [ev, h1] = pack(g.timeline[w].map(e => [e[0], esc(e[2]) + ' — ' + mmss(e[0] * 1000), icon(e)]), c);
       const by = {}, units = [];
       (g.unitsQ || []).filter(u => u[1] === side && u[2] !== 'Villager').forEach(u => (by[u[2]] = by[u[2]] || { pic: u[3], t: [] }).t.push(u[0]));
       Object.entries(by).forEach(([nm, o]) => { const cl = [];
