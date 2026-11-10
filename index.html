@@ -485,7 +485,7 @@
     if (playing) { clearInterval(playing); playing = null; }
     $('view').innerHTML = '<div class="empty">Chargement de la partie…</div>';
     try {
-      const g = loaded[meta.match] || (loaded[meta.match] = await (await fetch('games/' + meta.match + '.json')).json());
+      const g = loaded[meta.match] || (loaded[meta.match] = await (await fetch('games/' + meta.match + '.json', { cache: 'no-cache' })).json());
       if (G !== g) { view.vb = null; const c = g.ages.me['Castle'] || g.ages.him['Castle']; curT = c ? Math.round(c[1] / 1000) : Math.min(600, Math.floor(g.game_ms / 1000)); }
       G = g; renderGame();
     } catch (e) { $('view').innerHTML = '<div class="empty">Partie introuvable (' + esc(e.message) + ').</div>'; }
