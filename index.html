@@ -139,6 +139,7 @@
   .pon { margin-top: 2px; } .pon .pl2 { padding: 2px 0; } .pon .pu { width: 24px; height: 24px; font-size: 16px; }
   .ptot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 8px 0 2px; font-size: 14px; } .ptot b { font-size: 16px; }
   .ptms { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; margin-top: 4px; } .ptm { display: inline-flex; align-items: center; gap: 3px; cursor: help; }
+  .utk { position: absolute; top: 4px; width: 3px; height: 14px; margin-left: -1px; background: var(--c); border-radius: 1px; } .utk:hover { outline: 2px solid var(--ink); z-index: 2; }
   .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
 </style>
 <div class="wrap">
@@ -440,6 +441,13 @@
     const lane = (w, fam) => { const ev = g.timeline[w].filter(e => e[3] === fam); if (!ev.length) return '';
       return who(w) + '<div class="lane scrub">' + ev.map(e => '<span class="ev" style="left:' + pc(g, e[0]) + ';--c:' + (w === 'me' ? ME_C : HIM_C) + '" title="' + esc(e[2]) + ' — ' + mmss(e[0] * 1000) + '" data-s="' + e[0] + '">'
         + icon(e) + '</span>').join('') + '<i class="ph"></i></div>'; };
+    // Une ligne par type d'unité et par joueur : un trait par unité mise en file, total à gauche.
+    const unitLanes = () => [0, 1].flatMap(side => { const by = {};
+      (g.unitsQ || []).filter(u => u[1] === side && u[2] !== 'Villager').forEach(u => (by[u[2]] = by[u[2]] || { pic: u[3], t: [] }).t.push(u[0]));
+      return Object.entries(by).sort((a, b) => a[1].t[0] - b[1].t[0]).map(([nm, o]) => { const c = side ? HIM_C : ME_C;
+        return '<div class="lab" title="' + esc(nm) + (side ? ' (lui)' : ' (toi)') + ' : ' + o.t.length + ' mis en file"><span class="pl" style="--c:' + c + '">'
+          + (o.pic != null ? '<img src="' + IMG('Unit', o.pic) + '" alt="">' : '') + '<b>' + o.t.length + '</b></span></div>'
+          + '<div class="lane scrub prod">' + o.t.map((t, i) => '<span class="utk" style="left:' + pc(g, t) + ';--c:' + c + '" title="' + esc(nm) + ' n°' + (i + 1) + ' — ' + mmss(t * 1000) + '"></span>').join('') + '<i class="ph"></i></div>'; }); }).join('');
     const TYPE_ID = { 'Town Center': 621, 'Archery Range': 87, Barracks: 12, Stable: 101, 'Siege Workshop': 49 };
     const prodLane = (side, b) => { const c = side ? HIM_C : ME_C, pic = g.buildingIcons[TYPE_ID[b.type]], end = g.game_ms / 1000;
       const first = b.busy[0][0], busy = b.busy.reduce((a, x) => a + x[1] - x[0], 0), pct = Math.round(100 * busy / Math.max(1, end - first));
@@ -452,7 +460,7 @@
     if (part === 'prod') return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
       + (prod ? '<div class="fam" title="Barres = le bâtiment produit ou recherche ; trous = file vide (pas cliqué ou pas les moyens). Survol du % pour le détail.">Production ⓘ</div><div></div>' + prod : '<p class="mut">Aucune production lue.</p>') + '</div>';
     return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
-      + FAMILIES.map(([f, l]) => { const rows = lane('me', f) + lane('him', f); return rows ? '<div class="fam">' + esc(l) + '</div><div></div>' + rows : ''; }).join('') + '</div>';
+      + FAMILIES.map(([f, l]) => { const rows = f === 'unit' ? unitLanes() : lane('me', f) + lane('him', f); return rows ? '<div class="fam">' + esc(l) + '</div><div></div>' + rows : ''; }).join('') + '</div>';
   }
 
   // Carte : terrain du début (une case = un losange), TC de départ, bâtiments à leur pose (la
