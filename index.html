@@ -77,31 +77,32 @@
   .fbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; } .sep { width: 10px; }
   .fchip { font-size: 13px; padding: 4px 11px; border-radius: 14px; } .fchip.on { border-color: var(--acc); color: var(--acc); font-weight: 600; }
   .badges { margin-left: auto; font-size: 16px; letter-spacing: 3px; }
-  .mswitch { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 16px 0 6px; } .mswitch .mut { margin-left: 6px; }
-  .chart { position: relative; height: 150px; border-bottom: 1px solid var(--line); }
-  .half { position: absolute; left: 0; right: 0; height: 50%; } .half.top { top: 0; } .half.bot { bottom: 0; }
-  .half i { position: absolute; cursor: pointer; } .half.top i { bottom: 0; border-radius: 2px 2px 0 0; } .half.bot i { top: 0; border-radius: 0 0 2px 2px; opacity: .85; }
-  .half i:hover { outline: 2px solid var(--ink); }
-  .agel { position: absolute; top: 0; bottom: 0; border-left: 2px dashed; opacity: .6; pointer-events: auto; cursor: help; }
-  .axis { position: relative; height: 18px; font-size: 11px; color: var(--mut); } .axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
-  .axis span:first-child { transform: none; }
-  .chrono { display: grid; grid-template-columns: 70px 1fr; row-gap: 2px; align-items: center; }
-  .chrono .fam { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--mut); margin-top: 8px; }
-  .chrono .lab { font-size: 12px; font-weight: 600; } .lane { position: relative; height: 26px; border-bottom: 1px dotted var(--line); }
-  .ev { position: absolute; bottom: 3px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--c); cursor: pointer; }
-  .ev b { position: absolute; left: 50%; transform: translate(-50%, -100%); font-size: 10px; font-weight: 600; white-space: nowrap; color: var(--ink); opacity: .85; }
-  .ev:hover { outline: 2px solid var(--ink); z-index: 2; }
-  .mapctl { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; } .mapctl input[type=range] { flex: 1; min-width: 160px; } .mapctl b { font-variant-numeric: tabular-nums; min-width: 48px; }
+  .mapctl { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; } .mapctl b { font-variant-numeric: tabular-nums; font-size: 18px; min-width: 52px; } .grow { flex: 1; }
   .mapctl button { padding: 4px 9px; }
-  #map { width: 100%; display: block; margin: 8px auto; touch-action: none; cursor: grab; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; } .ground { fill: #c9b27c40; stroke: var(--line); }
+  .mapwrap { position: relative; } #map { width: 100%; display: block; margin: 8px auto; touch-action: none; cursor: grab; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; user-select: none; }
+  #map.drag { cursor: grabbing; } #map * { pointer-events: none; } .ground { fill: #c9b27c40; stroke: var(--line); }
+  #mtip { position: absolute; z-index: 5; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 12.5px; box-shadow: 0 2px 8px #0005; white-space: nowrap; }
   .legend span { margin-right: 10px; white-space: nowrap; } .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  .tl { display: grid; grid-template-columns: 52px minmax(0, 1fr); row-gap: 2px; align-items: center; }
+  .tl .fam { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--mut); margin-top: 6px; }
+  .tl .lab { font-size: 12px; font-weight: 600; }
+  .scrub { cursor: col-resize; touch-action: none; user-select: none; }
+  .ph { position: absolute; top: -2px; bottom: -2px; width: 0; border-left: 2px solid var(--ink); opacity: .75; pointer-events: none; z-index: 3; }
+  .lane { position: relative; height: 28px; border-bottom: 1px dotted var(--line); }
+  .ev { position: absolute; bottom: 2px; width: 22px; height: 22px; margin-left: -11px; border-radius: 4px; background: var(--c); padding: 1px; }
+  .ev img { width: 20px; height: 20px; display: block; border-radius: 3px; pointer-events: none; } .ev b { font-size: 9px; color: #fff; }
+  .ev:hover { outline: 2px solid var(--ink); z-index: 2; }
+  .agebar { position: absolute; top: 4px; height: 20px; border-radius: 4px; background: color-mix(in srgb, var(--c) 35%, transparent); border: 1px solid var(--c); border-right-width: 4px;
+    font-size: 11px; display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 0 4px; overflow: hidden; white-space: nowrap; }
+  .agebar em { font-style: normal; font-weight: 700; }
   .bv { position: absolute; left: 50%; transform: translateX(-50%); font-size: 10.5px; font-style: normal; color: var(--ink); white-space: nowrap; pointer-events: none; }
   .half.top .bv { bottom: 100%; } .half.bot .bv { top: 100%; } .chart.dense .bv { font-size: 8.5px; }
-  .chart { margin: 14px 0 0; height: 170px; } .cursor { position: absolute; top: 0; bottom: 0; border-left: 2px solid var(--ink); opacity: .5; pointer-events: none; }
-  .ev { width: 22px; height: 22px; margin-left: -11px; bottom: 2px; border-radius: 4px; background: var(--c); padding: 1px; }
-  .ev img { width: 20px; height: 20px; display: block; border-radius: 3px; } .ev b { font-size: 9px; color: #fff; position: static; transform: none; }
-  .lane { height: 28px; }
-  .mapsnap { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 18px; margin-top: 18px; } @media (max-width: 1000px) { .mapsnap { grid-template-columns: 1fr; } }
+  .chart { position: relative; margin: 14px 0 0; height: 170px; border-bottom: 1px solid var(--line); }
+  .half { position: absolute; left: 0; right: 0; height: 50%; } .half.top { top: 0; } .half.bot { bottom: 0; }
+  .half i { position: absolute; } .half.top i { bottom: 0; border-radius: 2px 2px 0 0; } .half.bot i { top: 0; border-radius: 0 0 2px 2px; opacity: .85; }
+  .axis { position: relative; height: 18px; font-size: 11px; color: var(--mut); } .axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; } .axis span:first-child { transform: none; }
+  .mswitch { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 18px 0 6px; } .mswitch .mut { margin-left: 6px; }
+  .mapsnap { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 18px; margin: 14px 0 10px; } @media (max-width: 1000px) { .mapsnap { grid-template-columns: 1fr; } }
   .snaphd { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .snaphd h4 { margin: 0 8px 0 0; }
   .snap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; } .snapc h5 { margin: 0 0 6px; font-size: 15px; }
   .kv { margin: 8px 0 4px; font-size: 13.5px; } .kv b { font-size: 16px; }
@@ -279,9 +280,9 @@
         + CAVEAT);
   }
 
-  // Mes parties (S98-S100) : les revues de review.py. Liste filtrable par badges ; page d'une partie =
-  // points clés, graphe par minute, chronologie en icônes, carte (terrain, zoom, rotation) et instantané
-  // à l'instant choisi. Le détail de chaque partie est dans games/<id>.json, chargé à l'ouverture.
+  // Mes parties (S98-S101) : les revues de review.py. Liste filtrable par badges ; page d'une partie =
+  // points clés, carte + instantané, puis UNE chronologie (icônes, âges, graphe) qu'on fait glisser :
+  // elle règle l'instant de la carte et de l'instantané. Détail dans games/<id>.json, chargé à l'ouverture.
   const mmss = ms => ms == null ? '—' : Math.floor(ms / 60000) + ':' + String(Math.floor(ms / 1000) % 60).padStart(2, '0');
   const day = iso => new Date(iso).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
   const res = g => g.won ? '✅' : g.won === false ? '❌' : '?';
@@ -308,151 +309,187 @@
     document.querySelectorAll('.fchip').forEach(b => b.onclick = () => { gf[b.dataset.k] = gf[b.dataset.k] === b.dataset.v ? '' : b.dataset.v; gamesList(); });
   }
 
-  // Axe du temps commun (graphe, chronologie) : un repère toutes les 5 min, les âges en traits.
-  const axis = n => '<div class="axis">' + Array.from({ length: Math.floor(n / 5) + 1 }, (_, i) => '<span style="left:' + (i * 5 / n * 100) + '%">' + i * 5 + ' min</span>').join('') + '</div>';
+  // Une seule échelle de temps pour la chronologie et le graphe : des minutes entières (TOTAL s).
   const AGES = ['Féodal', 'Castle', 'Impérial'];
-  const ageLines = (g, total) => ['me', 'him'].flatMap(w => AGES.filter(a => g.ages[w][a]).map(a =>
-    '<i class="agel" style="left:' + (g.ages[w][a][1] / total * 100) + '%;border-color:' + (w === 'me' ? ME_C : HIM_C) + '" title="' + (w === 'me' ? 'Toi' : 'Lui') + ' : arrivée ' + a + ' ' + mmss(g.ages[w][a][1]) + '"></i>')).join('');
+  const span = g => g.orders[0].length * 60;
+  const pc = (g, s) => (s / span(g) * 100) + '%';
+  const axis = g => { const n = g.orders[0].length; return '<div class="axis scrub">' + Array.from({ length: Math.floor(n / 5) + 1 }, (_, i) => '<span style="left:' + (i * 5 / n * 100) + '%">' + i * 5 + ' min</span>').join('') + '<i class="ph"></i></div>'; };
   const METRICS = { orders: ['Ordres aux unités', 'Ordres donnés aux unités par minute (clic droit, déplacement, stop) : en combat, ça mesure le micro.'],
     apm: ['APM', 'Actions par minute, doublons du client retirés.'],
     vills: ['Villageois', 'Villageois sortis à la fin de chaque minute, si la file avançait sans attendre la bouffe.'],
     spent: ['Éco (dépensé / min)', 'Ressources dépensées dans la minute. On ne garde pas des milliers de ressources longtemps : dépenser plus, c\'est surtout récolter plus. C\'est la taille de ton éco, minute par minute.'] };
   let metric = 'orders', curT = null, playing = null, G = null;
   function chart(g) {
-    const [a, b] = metric === 'orders' ? g.orders : g.series[metric], n = a.length, max = Math.max(1, ...a, ...b), total = n * 60000;
+    const [a, b] = metric === 'orders' ? g.orders : g.series[metric], n = a.length, max = Math.max(1, ...a, ...b);
     const col = (v, i, up) => '<i style="left:' + (i / n * 100) + '%;width:calc(' + (100 / n) + '% - 2px);height:' + (v / max * 100) + '%;background:' + (up ? ME_C : HIM_C) + '" title="'
-      + i + '-' + (i + 1) + ' min : ' + v + (up ? ' (toi)' : ' (lui)') + '" data-m="' + i + '"><span class="bv">' + (v || '') + '</span></i>';
+      + i + '-' + (i + 1) + ' min : ' + v + (up ? ' (toi)' : ' (lui)') + '"><span class="bv">' + (v || '') + '</span></i>';
     return '<div class="mswitch">' + Object.entries(METRICS).map(([k, [l, t]]) => '<button class="fchip' + (k === metric ? ' on' : '') + '" data-metric="' + k + '" title="' + esc(t) + '">' + esc(l) + '</button>').join('')
-      + '<span class="mut">' + esc(METRICS[metric][1]) + ' <span style="color:' + ME_C + '">Toi</span> en haut, <span style="color:' + HIM_C + '">lui</span> en bas.</span></div>'
-      + '<div class="chart' + (n > 36 ? ' dense' : '') + '"><div class="half top">' + a.map((v, i) => col(v, i, true)).join('') + '</div><div class="half bot">' + b.map((v, i) => col(v, i, false)).join('') + '</div>'
-      + ageLines(g, total) + '<i class="cursor" id="ccur"></i></div>' + axis(n);
+      + '<span class="mut">' + esc(METRICS[metric][1]) + '</span></div>'
+      + '<div class="tl"><div class="lab"></div><div class="chart scrub' + (n > 36 ? ' dense' : '') + '"><div class="half top">' + a.map((v, i) => col(v, i, true)).join('') + '</div><div class="half bot">' + b.map((v, i) => col(v, i, false)).join('') + '</div><i class="ph"></i></div>'
+      + '<div class="lab"></div>' + axis(g) + '</div>';
   }
-  // Chronologie : une ligne par famille et par joueur, une icône par upgrade (nom au survol).
-  const FAMILIES = [['age', 'Âges'], ['tc', 'TC posés'], ['eco', 'Éco'], ['forge', 'Forge'], ['unit', 'Unités'], ['autre', 'Autres']];
+  // Chronologie : une ligne par famille et par joueur. Âges : une barre du clic à l'arrivée.
+  const FAMILIES = [['tc', 'TC posés'], ['eco', 'Éco'], ['forge', 'Forge'], ['unit', 'Unités'], ['autre', 'Autres']];
   function chrono(g) {
-    const total = g.game_ms / 1000;
-    const icon = (e, type) => e[4] != null ? '<img src="https://aoe2techtree.net/img/' + e[4] + '.png" alt="">' : '<b>' + esc(e[2].slice(0, 3)) + '</b>';
+    const icon = e => e[4] != null ? '<img src="https://aoe2techtree.net/img/' + e[4] + '.png" alt="">' : '<b>' + esc(e[2].slice(0, 3)) + '</b>';
+    const who = w => '<div class="lab" style="color:' + (w === 'me' ? ME_C : HIM_C) + '">' + (w === 'me' ? 'Toi' : 'Lui') + '</div>';
+    const ageLane = w => who(w) + '<div class="lane scrub">' + AGES.filter(a => g.ages[w][a]).map(a => { const [c, r] = g.ages[w][a];
+      return '<span class="agebar" style="left:' + pc(g, c / 1000) + ';width:' + pc(g, (r - c) / 1000) + ';--c:' + (w === 'me' ? ME_C : HIM_C) + '" title="' + a + ' : clic ' + mmss(c) + ', arrivée ' + mmss(r) + '" data-s="' + Math.ceil(r / 1000) + '">'
+        + '<b>' + a + '</b><em>' + mmss(r) + '</em></span>'; }).join('') + '<i class="ph"></i></div>';
     const lane = (w, fam) => { const ev = g.timeline[w].filter(e => e[3] === fam); if (!ev.length) return '';
-      return '<div class="lab" style="color:' + (w === 'me' ? ME_C : HIM_C) + '">' + (w === 'me' ? 'Toi' : 'Lui') + '</div><div class="lane">'
-        + ev.map((e, i) => '<span class="ev" style="left:' + (e[0] / total * 100) + '%;--c:' + (w === 'me' ? ME_C : HIM_C) + '" title="' + esc(e[2]) + ' — ' + mmss(e[0] * 1000) + '" data-s="' + e[0] + '">'
-        + icon(e) + '</span>').join('') + '</div>'; };
-    return '<h4>Chronologie <span class="mut">(survol = nom, clic = instantané à ce moment)</span></h4><div class="chrono">' + FAMILIES.map(([f, l]) => { const rows = lane('me', f) + lane('him', f);
-      return rows ? '<div class="fam">' + esc(l) + '</div><div></div>' + rows : ''; }).join('') + '<div></div>' + axis(Math.ceil(total / 60)) + '</div>';
+      return who(w) + '<div class="lane scrub">' + ev.map(e => '<span class="ev" style="left:' + pc(g, e[0]) + ';--c:' + (w === 'me' ? ME_C : HIM_C) + '" title="' + esc(e[2]) + ' — ' + mmss(e[0] * 1000) + '" data-s="' + e[0] + '">'
+        + icon(e) + '</span>').join('') + '<i class="ph"></i></div>'; };
+    return '<div class="tl chrono"><div class="fam">Âges</div><div></div>' + ageLane('me') + ageLane('him')
+      + FAMILIES.map(([f, l]) => { const rows = lane('me', f) + lane('him', f); return rows ? '<div class="fam">' + esc(l) + '</div><div></div>' + rows : ''; }).join('') + '</div>';
   }
 
-  // Carte : terrain du début (arbres, or, pierre, baies, chasse), TC de départ, bâtiments à leur pose
-  // (la destruction n'est pas dans le replay), murs, clics des 20 dernières secondes. Zoom (molette,
-  // glisser, boutons), rotation par quart de tour et miroir, mémorisés dans le navigateur.
+  // Carte : terrain du début (une case = un losange), TC de départ, bâtiments à leur pose (la
+  // destruction n'est pas dans le replay), murs, clics des 20 dernières secondes. Zoom (molette,
+  // glisser, boutons), quart de tour et miroir mémorisés. Les icônes gardent leur taille à l'écran.
   const view = { rot: +(store('maprot') || 0), flip: store('mapflip') === '1', vb: null };
-  const TERRAIN = { tree: ['#2f6b3a', 0.9], gold: ['#e3c040', 1.6], stone: ['#9aa3ad', 1.6], berries: ['#d0508a', 1.3], boar: ['#7a4a2a', 1.6], deer: ['#c49a6c', 1.3], sheep: ['#f2f2f2', 1.2] };
-  const TNAME = { tree: 'arbres', gold: 'or', stone: 'pierre', berries: 'baies', boar: 'sangliers', deer: 'cerfs', sheep: 'moutons' };
+  const TERRAIN = { tree: '#2f6b3a', gold: '#e3c040', stone: '#9aa3ad', berries: '#d0508a', boar: '#7a4a2a', deer: '#c49a6c', sheep: '#f2f2f2' };
+  const TNAME = { tree: 'arbres', gold: 'or', stone: 'pierre', berries: 'baies', boar: 'sanglier', deer: 'cerf', sheep: 'moutons' };
+  const W = 900;
   function proj(g) {
-    const N = g.mapSize, k = 900 / (2 * N);
+    const N = g.mapSize, k = W / (2 * N);
     return (x, y) => { if (view.flip) [x, y] = [y, x];
       for (let r = 0; r < view.rot; r++) [x, y] = [N - y, x];
-      return [(x - y) * k + 450, (x + y) * k / 2]; };
+      return [(x - y) * k + W / 2, (x + y) * k / 2]; };
   }
+  function unproj(g, sx, sy) {
+    const N = g.mapSize, k = W / (2 * N), u = (sx - W / 2) / k, v = 2 * sy / k;
+    let x = (u + v) / 2, y = (v - u) / 2;
+    for (let r = 0; r < view.rot; r++) [x, y] = [y, N - x];
+    if (view.flip) [x, y] = [y, x];
+    return [x, y];
+  }
+  const diamond = (P, x, y) => [P(x, y), P(x + 1, y), P(x + 1, y + 1), P(x, y + 1)].map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
   function mapView(g) {
-    const N = g.mapSize, P = proj(g), H = N * 900 / (2 * N);
-    view.vb = view.vb || [0, 0, 900, H];
+    const N = g.mapSize, P = proj(g), H = W / 2;
+    view.vb = view.vb || [0, 0, W, H];
     const corner = [P(0, 0), P(N, 0), P(N, N), P(0, N)].map(p => p.join(',')).join(' ');
-    const terr = Object.entries(g.terrain).map(([kind, pts]) => { const [c, r] = TERRAIN[kind] || ['#888', 1];
-      return '<g fill="' + c + '"><title>' + TNAME[kind] + '</title>' + pts.map(([x, y]) => { const [a, b] = P(x + .5, y + .5);
-        return kind === 'tree' ? '<rect x="' + (a - r) + '" y="' + (b - r / 2) + '" width="' + 2 * r + '" height="' + r + '"/>' : '<circle cx="' + a + '" cy="' + b + '" r="' + r + '" stroke="#0006" stroke-width=".3"/>'; }).join('') + '</g>'; }).join('');
-    return '<div class="mapctl"><button id="play" title="Lecture">▶</button><input id="mslider" type="range" min="0" max="' + Math.floor(g.game_ms / 1000) + '" value="' + curT + '">'
-      + '<b id="mtime"></b><button id="zin" title="Zoom +">＋</button><button id="zout" title="Zoom −">－</button><button id="zreset" title="Toute la carte">⤢</button>'
+    const terr = Object.entries(g.terrain).map(([kind, pts]) => '<g fill="' + (TERRAIN[kind] || '#888') + '"' + (kind === 'tree' ? '' : ' stroke="#0008" stroke-width=".4"') + '>'
+      + pts.map(([x, y]) => '<polygon points="' + diamond(P, x, y) + '"/>').join('') + '</g>').join('');
+    return '<div class="mapctl"><button id="play" title="Lecture">▶</button><b id="mtime"></b><span class="mut">fais glisser la chronologie en dessous</span><span class="grow"></span>'
+      + '<button id="zin" title="Zoom +">＋</button><button id="zout" title="Zoom −">－</button><button id="zreset" title="Toute la carte">⤢</button>'
       + '<button id="rot" title="Tourner la carte d\'un quart de tour">↻</button><button id="flip" title="Miroir">⇋</button>'
       + '<label><input id="mclicks" type="checkbox" checked> clics</label></div>'
-      + '<svg id="map" viewBox="' + view.vb.join(' ') + '"><polygon points="' + corner + '" class="ground"/>' + terr + '<g id="mlayer"></g></svg>'
-      + '<div class="legend">' + Object.entries(TERRAIN).filter(([k]) => g.terrain[k] && g.terrain[k].length).map(([k, [c]]) => '<span><i style="background:' + c + '"></i>' + TNAME[k] + '</span>').join('')
-      + '<span><i style="background:' + ME_C + '"></i>toi</span><span><i style="background:' + HIM_C + '"></i>lui</span> · molette = zoom, glisser = déplacer</div>';
+      + '<div class="mapwrap"><svg id="map" viewBox="' + view.vb.join(' ') + '"><polygon points="' + corner + '" class="ground"/>' + terr + '<g id="mlayer"></g></svg><div id="mtip" hidden></div></div>'
+      + '<div class="legend">' + Object.entries(TERRAIN).filter(([k]) => g.terrain[k] && g.terrain[k].length).map(([k, c]) => '<span><i style="background:' + c + '"></i>' + TNAME[k] + '</span>').join('')
+      + '<span><i style="background:' + ME_C + '"></i>toi</span><span><i style="background:' + HIM_C + '"></i>lui</span> · molette = zoom, glisser = déplacer, survol = détail</div>';
   }
+  const placed = (g, t) => g.mapEvents.builds.filter(b => b[0] <= t).concat(g.startTC.filter(Boolean).map(([s, x, y]) => [0, s, 621, x, y, true]));
   function drawMap(g) {
-    const P = proj(g), t = curT, name = id => g.buildingNames[id] || '', N = g.mapSize, k = 900 / (2 * N);
-    const ic = (id, x, y, side, size, label) => { const pic = g.buildingIcons[id], [a, b] = P(x, y);
-      return '<g><title>' + esc(label) + '</title><circle cx="' + a + '" cy="' + b + '" r="' + (size * 0.62) + '" fill="' + SIDE_C(side) + '"/>'
-        + (pic != null ? '<image href="' + IMG('Building', pic) + '" x="' + (a - size / 2) + '" y="' + (b - size / 2) + '" width="' + size + '" height="' + size + '"/>' : '') + '</g>'; };
+    const P = proj(g), t = curT, name = id => g.buildingNames[id] || '', z = view.vb[2] / W;
+    const ic = (b, size) => { const pic = g.buildingIcons[b[2]], [a, c] = P(b[3], b[4]), s = size * z;
+      return '<circle cx="' + a + '" cy="' + c + '" r="' + (s * 0.62) + '" fill="' + SIDE_C(b[1]) + '"/>'
+        + (pic != null ? '<image href="' + IMG('Building', pic) + '" x="' + (a - s / 2) + '" y="' + (c - s / 2) + '" width="' + s + '" height="' + s + '"/>' : ''); };
     let h = g.mapEvents.walls.filter(w => w[0] <= t).map(w => { const [a, b] = [P(w[2] + .5, w[3] + .5), P(w[4] + .5, w[5] + .5)];
-      return '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="' + SIDE_C(w[1]) + '" stroke-width="2" stroke-linecap="round"/>'; }).join('');
-    h += g.mapEvents.builds.filter(b => b[0] <= t && name(b[2]) === 'Farm').map(b => { const [a, c] = P(b[3], b[4]);
-      return '<rect x="' + (a - 2.2 * k / 3) + '" y="' + (c - k / 3) + '" width="' + (4.4 * k / 3) + '" height="' + (2 * k / 3) + '" fill="' + SIDE_C(b[1]) + '" opacity=".35"><title>Ferme — ' + mmss(b[0] * 1000) + '</title></rect>'; }).join('');
-    h += g.startTC.filter(Boolean).map(([s, x, y]) => ic('621', x, y, s, 26, 'TC de départ' + (s ? ' (lui)' : ' (toi)'))).join('');
-    h += g.mapEvents.builds.filter(b => b[0] <= t && name(b[2]) !== 'Farm').map(b => { const n = name(b[2]), big = n === 'Town Center' || n === 'Castle';
-      return ic(b[2], b[3], b[4], b[1], big ? 26 : n === 'House' ? 11 : 16, n + ' — ' + mmss(b[0] * 1000) + (b[1] ? ' (lui)' : ' (toi)')); }).join('');
+      return '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="' + SIDE_C(w[1]) + '" stroke-width="' + (2.5 * z) + '" stroke-linecap="round"/>'; }).join('');
+    const all = placed(g, t);
+    h += all.filter(b => name(b[2]) === 'Farm').map(b => '<polygon points="' + [[-1.5, -1.5], [1.5, -1.5], [1.5, 1.5], [-1.5, 1.5]].map(([dx, dy]) => P(b[3] + dx, b[4] + dy).join(',')).join(' ')
+      + '" fill="' + SIDE_C(b[1]) + '" opacity=".35"/>').join('');
+    h += all.filter(b => name(b[2]) !== 'Farm').map(b => { const n = name(b[2]);
+      return ic(b, n === 'Town Center' || n === 'Castle' ? 30 : n === 'House' ? 14 : 20); }).join('');
     if ($('mclicks').checked) h += g.mapEvents.clicks.filter(c => c[0] <= t && c[0] > t - 20).map(c => { const [x, y] = P(c[2] + .5, c[3] + .5), o = (1 - (t - c[0]) / 20).toFixed(2);
-      return c[4] ? '<text x="' + x + '" y="' + y + '" fill="' + SIDE_C(c[1]) + '" opacity="' + o + '" font-size="9" font-weight="700" text-anchor="middle" dy="0.35em">×</text>'
-        : '<circle cx="' + x + '" cy="' + y + '" r="1.8" fill="' + SIDE_C(c[1]) + '" opacity="' + o + '"/>'; }).join('');
+      return c[4] ? '<text x="' + x + '" y="' + y + '" fill="' + SIDE_C(c[1]) + '" opacity="' + o + '" font-size="' + (11 * z) + '" font-weight="700" text-anchor="middle" dy="0.35em">×</text>'
+        : '<circle cx="' + x + '" cy="' + y + '" r="' + (2.2 * z) + '" fill="' + SIDE_C(c[1]) + '" opacity="' + o + '"/>'; }).join('');
     $('mlayer').innerHTML = h;
     $('mtime').textContent = mmss(t * 1000);
   }
   function zoom(f, cx, cy) {
-    const [x, y, w, h] = view.vb, nw = Math.min(900, Math.max(60, w * f)), nh = nw * h / w;
+    const [x, y, w, h] = view.vb, nw = Math.min(W, Math.max(50, w * f)), nh = nw * h / w;
     cx = cx == null ? x + w / 2 : cx; cy = cy == null ? y + h / 2 : cy;
     view.vb = [cx - (cx - x) * nw / w, cy - (cy - y) * nh / h, nw, nh];
     $('map').setAttribute('viewBox', view.vb.join(' '));
+    drawMap(G);
+  }
+  // Survol : la case sous la souris, sa ressource, le bâtiment posé à moins de 2 cases.
+  function hover(g, e, pt) {
+    const [x, y] = unproj(g, ...pt(e)), tx = Math.floor(x), ty = Math.floor(y), tip = $('mtip');
+    if (tx < 0 || ty < 0 || tx >= g.mapSize || ty >= g.mapSize) { tip.hidden = true; return; }
+    const kind = Object.keys(g.terrain).find(k => g.terrain[k].some(([a, b]) => a === tx && b === ty));
+    const near = placed(g, curT).map(b => [Math.hypot(b[3] - x, b[4] - y), b]).filter(([d]) => d < 2.2).sort((a, b) => a[0] - b[0])[0];
+    tip.innerHTML = '<b>case ' + tx + ', ' + ty + '</b>' + (kind ? ' · ' + TNAME[kind] : '')
+      + (near ? '<br><span style="color:' + SIDE_C(near[1][1]) + '">' + esc(g.buildingNames[near[1][2]] || 'TC') + (near[1][5] ? ' de départ' : ' posé à ' + mmss(near[1][0] * 1000)) + (near[1][1] ? ' (lui)' : ' (toi)') + '</span>' : '');
+    const r = $('map').parentNode.getBoundingClientRect();
+    tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 10) + 'px'; tip.hidden = false;
   }
   function wireMap(g) {
     const svg = $('map');
     const pt = e => { const r = svg.getBoundingClientRect(), [x, y, w, h] = view.vb; return [x + (e.clientX - r.left) / r.width * w, y + (e.clientY - r.top) / r.height * h]; };
     svg.addEventListener('wheel', e => { e.preventDefault(); const [cx, cy] = pt(e); zoom(e.deltaY > 0 ? 1.25 : 0.8, cx, cy); }, { passive: false });
     let drag = null;
-    svg.onpointerdown = e => { drag = [e.clientX, e.clientY, view.vb.slice()]; svg.setPointerCapture(e.pointerId); };
-    svg.onpointermove = e => { if (!drag) return; const r = svg.getBoundingClientRect(), [x0, y0, vb] = drag;
-      view.vb = [vb[0] - (e.clientX - x0) / r.width * vb[2], vb[1] - (e.clientY - y0) / r.height * vb[3], vb[2], vb[3]]; svg.setAttribute('viewBox', view.vb.join(' ')); };
-    svg.onpointerup = svg.onpointercancel = () => { drag = null; };
+    svg.onpointerdown = e => { e.preventDefault(); drag = [e.clientX, e.clientY, view.vb.slice()]; svg.setPointerCapture(e.pointerId); svg.classList.add('drag'); };
+    svg.onpointermove = e => {
+      if (!drag) { hover(g, e, pt); return; }
+      const r = svg.getBoundingClientRect(), [x0, y0, vb] = drag, sc = vb[2] / r.width;
+      view.vb = [vb[0] - (e.clientX - x0) * sc, vb[1] - (e.clientY - y0) * sc, vb[2], vb[3]]; svg.setAttribute('viewBox', view.vb.join(' ')); };
+    svg.onpointerup = svg.onpointercancel = () => { drag = null; svg.classList.remove('drag'); };
+    svg.onpointerleave = () => { $('mtip').hidden = true; };
     $('zin').onclick = () => zoom(0.7); $('zout').onclick = () => zoom(1.4);
     $('zreset').onclick = () => { view.vb = null; renderGame(); };
-    $('rot').onclick = () => { view.rot = (view.rot + 1) % 4; store('maprot', view.rot); renderGame(); };
-    $('flip').onclick = () => { view.flip = !view.flip; store('mapflip', view.flip ? '1' : '0'); renderGame(); };
-    $('mslider').oninput = () => seek(+$('mslider').value);
+    $('rot').onclick = () => { view.rot = (view.rot + 1) % 4; store('maprot', view.rot); view.vb = null; renderGame(); };
+    $('flip').onclick = () => { view.flip = !view.flip; store('mapflip', view.flip ? '1' : '0'); view.vb = null; renderGame(); };
     $('mclicks').onchange = () => drawMap(g);
     $('play').onclick = () => {
       if (playing) { clearInterval(playing); playing = null; $('play').textContent = '▶'; return; }
       $('play').textContent = '⏸';
-      playing = setInterval(() => { if (curT >= g.game_ms / 1000 || !$('mslider')) { clearInterval(playing); playing = null; if ($('play')) $('play').textContent = '▶'; return; } seek(curT + 3); }, 100);
+      playing = setInterval(() => { if (curT >= g.game_ms / 1000 || !$('map')) { clearInterval(playing); playing = null; if ($('play')) $('play').textContent = '▶'; return; } seek(curT + 3); }, 100);
     };
+  }
+  // Glisser sur la chronologie ou le graphe : l'instant suit la souris.
+  function wireScrub(g) {
+    document.querySelectorAll('.scrub').forEach(el => {
+      const at = e => { const r = el.getBoundingClientRect(); seek(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * span(g)); };
+      el.onpointerdown = e => { if (e.button) return; e.preventDefault(); el.setPointerCapture(e.pointerId); el.dataset.d = '1'; at(e); };
+      el.onpointermove = e => { if (el.dataset.d) at(e); };
+      el.onpointerup = el.onpointercancel = () => { delete el.dataset.d; };
+    });
   }
 
   // Instantané à l'instant choisi : âge, villageois par ressource (estimés), pierre restante,
-  // bâtiments posés, armée produite, upgrades faites. Morts et destructions invisibles.
+  // bâtiments posés, unités produites, upgrades faites. Morts et destructions invisibles.
   const KINDS = [['bois', '#8a6a3a'], ['fermes', '#c9a227'], ['baies', '#d0508a'], ['chasse', '#a0522d'], ['moutons', '#cfcfcf'], ['or', '#e3c040'], ['pierre', '#9aa3ad'], ['?', '#666']];
   function snapshot(g) {
     const t = curT, i = Math.min(Math.floor(t / g.snap.step), g.snap.vills[0].length - 1);
-    const ageAt = w => AGES.filter(a => g.ages[w][a] && g.ages[w][a][1] <= t * 1000 + 999).pop() || 'Sombre';
+    const ageAt = w => { const done = AGES.filter(a => g.ages[w][a] && g.ages[w][a][1] <= t * 1000 + 999).pop() || 'Sombre';
+      const going = AGES.find(a => g.ages[w][a] && g.ages[w][a][0] <= t * 1000 && g.ages[w][a][1] > t * 1000 + 999);
+      return done + (going ? ' <span class="mut">→ ' + going + ' à ' + mmss(g.ages[w][going][1]) + '</span>' : ''); };
     const count = list => list.reduce((m, [n, pic]) => { m[n] = m[n] || [0, pic]; m[n][0]++; return m; }, {});
     const icons = (m, type) => Object.entries(m).sort((a, b) => b[1][0] - a[1][0]).map(([n, [c, pic]]) =>
-      '<span class="si2" title="' + esc(n) + '">' + (pic != null ? '<img src="' + IMG(type, pic) + '" alt="">' : '<b>' + esc(n.slice(0, 4)) + '</b>') + '<b>' + c + '</b></span>').join('') || '<span class="mut">—</span>';
+      '<span class="si2" title="' + esc(n) + ' × ' + c + '">' + (pic != null ? '<img src="' + IMG(type, pic) + '" alt="">' : '<b>' + esc(n.slice(0, 4)) + '</b>') + '<b>' + c + '</b></span>').join('') || '<span class="mut">aucun</span>';
     const col = (side, w) => {
       const v = g.snap.vills[side][i], tot = Object.values(v).reduce((a, b) => a + b, 0), stone = g.snap.stone[side][i];
+      const mine = g.mapEvents.builds.filter(b => b[0] <= t && b[1] === side);
+      const bname = b => g.buildingNames[b[2]];
       const bar = '<div class="vbar">' + KINDS.filter(([k]) => v[k]).map(([k, c]) => '<i style="flex:' + v[k] + ';background:' + c + '" title="' + k + ' : ' + v[k] + '"></i>').join('') + '</div>'
         + '<div class="vleg">' + KINDS.filter(([k]) => v[k]).map(([k, c]) => '<span><i style="background:' + c + '"></i>' + (k === '?' ? 'non suivis (moutons, TC…)' : k) + ' <b>' + v[k] + '</b></span>').join('') + '</div>';
-      const builds = count(g.mapEvents.builds.filter(b => b[0] <= t && b[1] === side && !['House', 'Farm', 'Palisade Wall', 'Stone Wall', 'Palisade Gate', 'Gate'].includes(g.buildingNames[b[2]]))
-        .map(b => [g.buildingNames[b[2]], g.buildingIcons[b[2]]]));
-      const houses = g.mapEvents.builds.filter(b => b[0] <= t && b[1] === side && g.buildingNames[b[2]] === 'House').length;
-      const farms = g.mapEvents.builds.filter(b => b[0] <= t && b[1] === side && g.buildingNames[b[2]] === 'Farm').length;
+      const builds = count(mine.filter(b => !['House', 'Farm', 'Palisade Wall', 'Stone Wall', 'Palisade Gate', 'Gate'].includes(bname(b))).map(b => [bname(b), g.buildingIcons[b[2]]]));
+      const houses = mine.filter(b => bname(b) === 'House').length, farms = mine.filter(b => bname(b) === 'Farm').length;
       const army = count(g.unitsQ.filter(u => u[0] <= t && u[1] === side).map(u => [u[2], u[3]]));
       const techs = g.timeline[w].filter(e => e[0] <= t && e[3] !== 'tc' && e[3] !== 'age');
       return '<div class="snapc"><h5 style="color:' + SIDE_C(side) + '">' + (side ? 'Lui' : 'Toi') + ' · ' + ageAt(w) + '</h5>'
-        + '<div class="kv"><b>' + tot + '</b> villageois</div>' + bar
-        + '<div class="kv">Pierre restante ≈ <b>' + stone + '</b>' + (stone >= 100 ? ' · TC possible' : ' · <span class="bad">pas de TC</span>') + '</div>'
-        + '<div class="kv">Bâtiments <span class="mut">(+ ' + houses + ' maisons, ' + farms + ' fermes)</span></div><div class="icons">' + icons(builds, 'Building') + '</div>'
-        + '<div class="kv">Armée produite</div><div class="icons">' + icons(army, 'Unit') + '</div>'
-        + '<div class="kv">Upgrades</div><div class="icons">' + (techs.map(e => '<span class="si2" title="' + esc(e[2]) + ' — ' + mmss(e[0] * 1000) + '">'
-          + (e[4] != null ? '<img src="https://aoe2techtree.net/img/' + e[4] + '.png" alt="">' : '<b>' + esc(e[2].slice(0, 4)) + '</b>') + '</span>').join('') || '<span class="mut">—</span>') + '</div></div>';
+        + '<div class="kv"><b>' + tot + '</b> villageois, par ressource</div>' + bar
+        + '<div class="kv">Pierre en réserve ≈ <b>' + stone + '</b>' + (stone >= 100 ? ' · de quoi poser un TC' : ' · <span class="bad">pas assez pour un TC</span>') + '</div>'
+        + '<div class="kv">Bâtiments posés <span class="mut">+ ' + houses + ' maisons, ' + farms + ' fermes</span></div><div class="icons">' + icons(builds, 'Building') + '</div>'
+        + '<div class="kv">Unités produites depuis le début</div><div class="icons">' + icons(army, 'Unit') + '</div>'
+        + '<div class="kv">Upgrades faites</div><div class="icons">' + (techs.map(e => '<span class="si2" title="' + esc(e[2]) + ' — ' + mmss(e[0] * 1000) + '">'
+          + (e[4] != null ? '<img src="https://aoe2techtree.net/img/' + e[4] + '.png" alt="">' : '<b>' + esc(e[2].slice(0, 4)) + '</b>') + '</span>').join('') || '<span class="mut">aucune</span>') + '</div></div>';
     };
     const jump = [['Ton Féodal', g.ages.me['Féodal']], ['Ton Castle', g.ages.me['Castle']], ['Son Castle', g.ages.him['Castle']], ['Ton Impérial', g.ages.me['Impérial']]]
-      .filter(([, a]) => a).map(([l, a]) => '<button class="fchip" data-jump="' + Math.round(a[1] / 1000) + '">' + l + ' ' + mmss(a[1]) + '</button>').join('')
+      .filter(([, a]) => a).map(([l, a]) => '<button class="fchip" data-jump="' + Math.ceil(a[1] / 1000) + '">' + l + ' ' + mmss(a[1]) + '</button>').join('')
       + '<button class="fchip" data-jump="' + Math.floor(g.game_ms / 1000) + '">Fin</button>';
     return '<div class="snaphd"><h4>Instantané à <span id="stime">' + mmss(t * 1000) + '</span></h4>' + jump + '</div>'
       + '<div class="snap">' + col(0, 'me') + col(1, 'him') + '</div>'
-      + '<p class="note">Estimation à partir des ordres : un villageois garde la dernière ressource sur laquelle il a été envoyé ; ceux jamais cliqués vont au point de ralliement du TC. Les morts et les bâtiments détruits ne sont pas dans le replay.</p>';
+      + '<p class="note">Estimation à partir des ordres : un villageois garde la dernière ressource sur laquelle il a été envoyé ; ceux jamais cliqués vont au point de ralliement du TC. Morts et bâtiments détruits absents du replay.</p>';
   }
   function seek(s) {
     if (!G) return;
     curT = Math.max(0, Math.min(Math.floor(G.game_ms / 1000), Math.round(s)));
-    if ($('mslider')) { $('mslider').value = curT; drawMap(G); }
+    if ($('map')) drawMap(G);
     $('snapbox').innerHTML = snapshot(G); wireSnap();
-    const c = $('ccur'); if (c) c.style.left = (curT / (G.orders[0].length * 60) * 100) + '%';
+    document.querySelectorAll('.ph').forEach(p => p.style.left = pc(G, curT));
   }
   function wireSnap() { document.querySelectorAll('[data-jump]').forEach(b => b.onclick = () => seek(+b.dataset.jump)); }
   function renderGame() {
@@ -466,8 +503,8 @@
       + ' · <a href="https://www.aoe2insights.com/match/' + g.match + '/" target="_blank" rel="noopener">AoE2 Insights</a>'
       + (both ? ' · <a href="#' + slug(g.mine) + '--' + slug(g.vs) + '">fiche du matchup</a>' : '') + '</span></div>'
       + '<ul class="flags big">' + g.flags.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>'
-      + chart(g) + chrono(g)
       + '<div class="mapsnap"><div>' + mapView(g) + '</div><div id="snapbox"></div></div>'
+      + '<h4>Chronologie <span class="mut">— clique ou fais glisser pour choisir l\'instant ; survol = nom</span></h4>' + chrono(g) + chart(g)
       + more('Détails', '<h4>Âges</h4><table><tr><th></th><th>Toi</th><th>Lui</th></tr>' + AGES.map(ageRow).join('')
         + g.vills.map(([m, a, b]) => '<tr><td>Villageois à ' + m + ' min</td><td>' + a + '</td><td>' + b + '</td></tr>').join('') + '</table>'
         + '<h4>File du TC vide (≥ 8 s)</h4><p>' + (g.gaps.map(([a, b]) => mmss(a) + ' → ' + mmss(b) + ' (' + Math.round((b - a) / 1000) + ' s)').join(', ') || 'aucune') + '</p>'
@@ -475,9 +512,7 @@
         + [5, 10, 15, 20, 25, 30, 40].filter(m => m <= g.spent[0].length).map(m => '<tr><td>' + m + '</td><td>' + g.spent[0][at(m)] + '</td><td>' + g.spent[1][at(m)] + '</td></tr>').join('') + '</table>'
         + '<p class="note">Lu dans les ordres du replay : villageois et unités = mis en file (un villageois qui attend la bouffe ne se voit pas), ressources = dépensées au coût de base, morts invisibles. Vraies stats : écran de fin du jeu ou CaptureAge.</p>');
     document.querySelectorAll('[data-metric]').forEach(b => b.onclick = () => { metric = b.dataset.metric; renderGame(); });
-    document.querySelectorAll('.chart i[data-m]').forEach(b => b.onclick = () => seek(+b.dataset.m * 60 + 59));
-    document.querySelectorAll('.ev[data-s]').forEach(b => b.onclick = () => seek(+b.dataset.s));
-    wireMap(g);
+    wireMap(g); wireScrub(g);
     seek(curT);
   }
   const loaded = {};
@@ -486,7 +521,7 @@
     $('view').innerHTML = '<div class="empty">Chargement de la partie…</div>';
     try {
       const g = loaded[meta.match] || (loaded[meta.match] = await (await fetch('games/' + meta.match + '.json', { cache: 'no-cache' })).json());
-      if (G !== g) { view.vb = null; const c = g.ages.me['Castle'] || g.ages.him['Castle']; curT = c ? Math.round(c[1] / 1000) : Math.min(600, Math.floor(g.game_ms / 1000)); }
+      if (G !== g) { view.vb = null; const c = g.ages.me['Castle'] || g.ages.him['Castle']; curT = c ? Math.ceil(c[1] / 1000) : Math.min(600, Math.floor(g.game_ms / 1000)); }
       G = g; renderGame();
     } catch (e) { $('view').innerHTML = '<div class="empty">Partie introuvable (' + esc(e.message) + ').</div>'; }
   }
