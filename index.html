@@ -355,6 +355,15 @@
   const GR = { f: 19.3, w: 23.4, g: 22.8 }, RNM = { f: 'nourriture', w: 'bois', g: 'or' }, RIMG = { f: 'food', w: 'wood', g: 'gold' };
   const STEPS = { f: [[213, 79, 1.1], [249, 42, 1.1]], w: [[202, 70, 1.2], [203, 71, 1.2]], g: [[55, 15, 1.15]] };
   const plans = [null, null];
+  // Nourriture : répartie selon les vraies sources du joueur sur la période, chacune à sa vitesse.
+  const FR = { fermes: [19.3, '🌾'], baies: [18.6, '🫐'], chasse: [24.6, '🦌'], 'bétail': [19.8, '🐑'] };
+  function foodMix(P) { const mix = Object.entries(P.fmix || {}).filter(([k]) => FR[k]); if (!mix.length) mix.push(['fermes', 1]);
+    const tot = mix.reduce((a, [, p]) => a + p, 0), mult = (P.ups.includes(213) ? 1.1 : 1) * (P.ups.includes(249) ? 1.1 : 1);
+    return { mix, tot, rate: mix.reduce((a, [k, p]) => a + p * FR[k][0], 0) / tot * mult }; }
+  function foodSplit(n, fm) { const raw = fm.mix.map(([k, p]) => [k, n * p / fm.tot]), out = raw.map(([k, x]) => [k, Math.floor(x)]);
+    let left = n - out.reduce((a, [, x]) => a + x, 0);
+    raw.map(([, x], i) => [x - Math.floor(x), i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (left > 0) { out[i][1]++; left--; } });
+    return out.filter(([, x]) => x > 0); }
   function stepRates(r) { const out = [GR[r]]; STEPS[r].forEach(([, , k]) => out.push(out[out.length - 1] * k)); return out; }
   function haveStep(r, ups) { let i = 0; STEPS[r].forEach(([id], j) => { if (ups.includes(id)) i = j + 1; }); return i; }
   function planBox(g, side) {
@@ -368,7 +377,11 @@
     const per = row => { const o = {}; Object.entries(row.c).forEach(([r, x]) => { if (x && GR[r]) o[r] = x * st.n[rows.indexOf(row)] / (row.once ? mins : 1); }); return o; };
     const cnt = (x, rate, once) => once ? Math.max(1, Math.round(x / rate)) : Math.ceil(x / rate - 0.05);
     const tech = (pic, cls) => pic != null ? '<img class="pt' + (cls || '') + '" src="' + IMG('Tech', pic) + '" alt="">' : '';
-    const ladder = (r, x, once) => { const rates = stepRates(r), have = haveStep(r, P.ups);
+    const fm = foodMix(P);
+    const ladder = (r, x, once) => { if (r === 'f') { const n = cnt(x, fm.rate, once);
+        return '<span class="pr" title="Réparti comme ta nourriture sur la période : ' + fm.mix.map(([k, p]) => k + ' ' + p).join(', ') + ' villageois en moyenne"><img class="pres" src="https://aoe2techtree.net/img/food.png" alt="nourriture"><b>' + n + '</b>'
+          + (fm.mix.length > 1 || fm.mix[0][0] !== 'fermes' ? '<span class="mut">(' + foodSplit(n, fm).map(([k, v]) => FR[k][1] + v).join(' ') + ')</span>' : '') + '</span>'; }
+      const rates = stepRates(r), have = haveStep(r, P.ups);
       return '<span class="pr"><img class="pres" src="https://aoe2techtree.net/img/' + RIMG[r] + '.png" alt="' + RNM[r] + '">'
         + rates.map((rt, j) => '<span class="ps' + (j === have ? ' on' : '') + '" title="' + (j ? 'avec ' + STEPS[r].slice(0, j).map(s => s[0] === 202 ? 'Double-Bit Axe' : s[0] === 203 ? 'Bow Saw' : s[0] === 55 ? 'Gold Mining' : s[0] === 213 ? 'Wheelbarrow' : 'Hand Cart').join(' + ') : 'sans upgrade') + (j === have ? ' (ce que tu avais)' : '') + '">'
           + (j ? tech(STEPS[r][j - 1][1]) : '') + '<b>' + cnt(x, rt, once) + '</b></span>').join('') + '</span>'; };
@@ -384,7 +397,7 @@
     const units = rows.map((row, i) => row.once ? '' : line(row, i)).join(''), once = rows.map((row, i) => row.once ? line(row, i) : '').join('');
     // Total au palier d'upgrades que le joueur avait, contre ses villageois réels.
     const tot = { f: 0, w: 0, g: 0 };
-    rows.forEach(row => Object.entries(per(row)).forEach(([r, x]) => tot[r] += x / stepRates(r)[haveStep(r, P.ups)]));
+    rows.forEach(row => Object.entries(per(row)).forEach(([r, x]) => tot[r] += x / (r === 'f' ? fm.rate : stepRates(r)[haveStep(r, P.ups)])));
     const need = Object.fromEntries(Object.entries(tot).map(([r, x]) => [r, Math.ceil(x - 0.05)])), had = Object.fromEntries(['f', 'w', 'g'].map(r => [r, Math.round(P.had[r] || 0)]));
     const sum = o => o.f + o.w + o.g, gap = sum(need) - sum(had);
     const res = (o, cmp) => ['f', 'w', 'g'].map(r => '<span class="pr"><img class="pres" src="https://aoe2techtree.net/img/' + RIMG[r] + '.png" alt="' + RNM[r] + '"><b' + (cmp && o[r] > cmp[r] ? ' class="bad"' : '') + '>' + o[r] + '</b></span>').join('');
