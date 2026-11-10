@@ -425,7 +425,7 @@
     const col = (side, w) => {
       const v = g.snap.vills[side][i], tot = Object.values(v).reduce((a, b) => a + b, 0), stone = g.snap.stone[side][i];
       const bar = '<div class="vbar">' + KINDS.filter(([k]) => v[k]).map(([k, c]) => '<i style="flex:' + v[k] + ';background:' + c + '" title="' + k + ' : ' + v[k] + '"></i>').join('') + '</div>'
-        + '<div class="vleg">' + KINDS.filter(([k]) => v[k]).map(([k, c]) => '<span><i style="background:' + c + '"></i>' + (k === '?' ? 'non suivis' : k) + ' <b>' + v[k] + '</b></span>').join('') + '</div>';
+        + '<div class="vleg">' + KINDS.filter(([k]) => v[k]).map(([k, c]) => '<span><i style="background:' + c + '"></i>' + (k === '?' ? 'non suivis (moutons, TC…)' : k) + ' <b>' + v[k] + '</b></span>').join('') + '</div>';
       const builds = count(g.mapEvents.builds.filter(b => b[0] <= t && b[1] === side && !['House', 'Farm', 'Palisade Wall', 'Stone Wall', 'Palisade Gate', 'Gate'].includes(g.buildingNames[b[2]]))
         .map(b => [g.buildingNames[b[2]], g.buildingIcons[b[2]]]));
       const houses = g.mapEvents.builds.filter(b => b[0] <= t && b[1] === side && g.buildingNames[b[2]] === 'House').length;
