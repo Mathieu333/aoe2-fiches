@@ -331,7 +331,7 @@
   const FAMILIES = [['age', 'Âges'], ['tc', 'TC posés'], ['eco', 'Éco'], ['forge', 'Forge'], ['unit', 'Unités'], ['autre', 'Autres']];
   function chrono(g) {
     const total = g.game_ms / 1000;
-    const icon = (e, type) => e[4] != null ? '<img src="' + IMG(e[3] === 'tc' ? 'Building' : 'Tech', e[4]) + '" alt="" loading="lazy">' : '<b>' + esc(e[2].slice(0, 3)) + '</b>';
+    const icon = (e, type) => e[4] != null ? '<img src="https://aoe2techtree.net/img/' + e[4] + '.png" alt="">' : '<b>' + esc(e[2].slice(0, 3)) + '</b>';
     const lane = (w, fam) => { const ev = g.timeline[w].filter(e => e[3] === fam); if (!ev.length) return '';
       return '<div class="lab" style="color:' + (w === 'me' ? ME_C : HIM_C) + '">' + (w === 'me' ? 'Toi' : 'Lui') + '</div><div class="lane">'
         + ev.map((e, i) => '<span class="ev" style="left:' + (e[0] / total * 100) + '%;--c:' + (w === 'me' ? ME_C : HIM_C) + '" title="' + esc(e[2]) + ' — ' + mmss(e[0] * 1000) + '" data-s="' + e[0] + '">'
@@ -418,7 +418,7 @@
   const KINDS = [['bois', '#8a6a3a'], ['fermes', '#c9a227'], ['baies', '#d0508a'], ['chasse', '#a0522d'], ['moutons', '#cfcfcf'], ['or', '#e3c040'], ['pierre', '#9aa3ad'], ['?', '#666']];
   function snapshot(g) {
     const t = curT, i = Math.min(Math.floor(t / g.snap.step), g.snap.vills[0].length - 1);
-    const ageAt = w => AGES.filter(a => g.ages[w][a] && g.ages[w][a][1] / 1000 <= t).pop() || 'Sombre';
+    const ageAt = w => AGES.filter(a => g.ages[w][a] && g.ages[w][a][1] <= t * 1000 + 999).pop() || 'Sombre';
     const count = list => list.reduce((m, [n, pic]) => { m[n] = m[n] || [0, pic]; m[n][0]++; return m; }, {});
     const icons = (m, type) => Object.entries(m).sort((a, b) => b[1][0] - a[1][0]).map(([n, [c, pic]]) =>
       '<span class="si2" title="' + esc(n) + '">' + (pic != null ? '<img src="' + IMG(type, pic) + '" alt="">' : '<b>' + esc(n.slice(0, 4)) + '</b>') + '<b>' + c + '</b></span>').join('') || '<span class="mut">—</span>';
@@ -438,7 +438,7 @@
         + '<div class="kv">Bâtiments <span class="mut">(+ ' + houses + ' maisons, ' + farms + ' fermes)</span></div><div class="icons">' + icons(builds, 'Building') + '</div>'
         + '<div class="kv">Armée produite</div><div class="icons">' + icons(army, 'Unit') + '</div>'
         + '<div class="kv">Upgrades</div><div class="icons">' + (techs.map(e => '<span class="si2" title="' + esc(e[2]) + ' — ' + mmss(e[0] * 1000) + '">'
-          + (e[4] != null ? '<img src="' + IMG('Tech', e[4]) + '" alt="">' : '<b>' + esc(e[2].slice(0, 4)) + '</b>') + '</span>').join('') || '<span class="mut">—</span>') + '</div></div>';
+          + (e[4] != null ? '<img src="https://aoe2techtree.net/img/' + e[4] + '.png" alt="">' : '<b>' + esc(e[2].slice(0, 4)) + '</b>') + '</span>').join('') || '<span class="mut">—</span>') + '</div></div>';
     };
     const jump = [['Ton Féodal', g.ages.me['Féodal']], ['Ton Castle', g.ages.me['Castle']], ['Son Castle', g.ages.him['Castle']], ['Ton Impérial', g.ages.me['Impérial']]]
       .filter(([, a]) => a).map(([l, a]) => '<button class="fchip" data-jump="' + Math.round(a[1] / 1000) + '">' + l + ' ' + mmss(a[1]) + '</button>').join('')
