@@ -125,6 +125,24 @@
   .reper { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
   .gtabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; } .gtabs .mut { margin-left: 6px; font-size: 12.5px; }
   .verdict { font-size: 15px; margin: 4px 0 8px; } .hu { white-space: nowrap; margin-right: 6px; cursor: help; }
+  .vrow { display: grid; grid-template-columns: 26px 1fr; gap: 6px; align-items: center; margin: 8px 0; } .vr { width: 24px; height: 24px; }
+  .vline { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: 2px 0; font-size: 13px; } .vl { width: 46px; font-size: 11px; color: var(--mut); }
+  .vseg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 1px; padding: 1px 2px; border-radius: 4px; background: color-mix(in srgb, var(--c) 30%, transparent); border: 1px solid var(--c); cursor: help; }
+  .vseg.had { --c: #8a8f98; } .vf { width: 13px; height: 13px; border-radius: 2px; } .vb { width: 18px; height: 18px; border-radius: 3px; vertical-align: -4px; } .vu { font-size: 13px; }
+  .vleg2 { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; margin: 8px 0; } .vleg2 span { cursor: help; } .vleg2 i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
+  .vt { margin: 10px 0 4px; font-size: 13px; } .vtl { margin: 0; padding-left: 0; list-style: none; font-size: 13px; } .vtl li { margin: 3px 0; }
+  .pl { display: inline-flex; align-items: center; gap: 2px; border-left: 3px solid var(--c); padding-left: 2px; } .pl img { width: 18px; height: 18px; border-radius: 3px; } .pl b { font-size: 10.5px; }
+  .lane.prod { height: 22px; } .prod .from { position: absolute; top: 9px; height: 4px; background: var(--line); border-radius: 2px; }
+  .prod .busy { position: absolute; top: 5px; height: 12px; background: var(--c); border-radius: 2px; min-width: 1px; } .prod .busy:hover { outline: 2px solid var(--ink); }
+  .res.idle { background: #5a2a22; }
+  .eco { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } @media (max-width: 800px) { .eco { grid-template-columns: 1fr; } }
+  .ecoc h5 { margin: 0 0 6px; font-size: 15px; } .er { display: grid; grid-template-columns: 26px 1fr 64px; gap: 6px; align-items: center; margin: 6px 0; } .er img { width: 24px; height: 24px; }
+  .eb { position: relative; height: 13px; margin: 1px 0; cursor: help; } .eb i { display: block; height: 100%; border-radius: 2px; } .eb b { position: absolute; left: 4px; top: -1px; font-size: 10.5px; color: #fff; text-shadow: 0 0 2px #000; }
+  .eb.inc i, .eleg .inc { background: #4f9d69; } .eb.need i, .eleg .need { background: #c9a227; } .eb.spent i, .eleg .spent { background: #8a8f98; }
+  .eleg { display: flex; gap: 14px; font-size: 12.5px; margin-bottom: 4px; } .eleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+  .reper { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+  .gtabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; } .gtabs .mut { margin-left: 6px; font-size: 12.5px; }
+  .verdict { font-size: 15px; margin: 4px 0 8px; } .hu { white-space: nowrap; margin-right: 6px; cursor: help; }
   .pl { display: inline-flex; align-items: center; gap: 2px; border-left: 3px solid var(--c); padding-left: 2px; } .pl img { width: 18px; height: 18px; border-radius: 3px; } .pl b { font-size: 10.5px; }
   .lane.prod { height: 22px; } .prod .from { position: absolute; top: 9px; height: 4px; background: var(--line); border-radius: 2px; }
   .prod .busy { position: absolute; top: 5px; height: 12px; background: var(--c); border-radius: 2px; min-width: 1px; } .prod .busy:hover { outline: 2px solid var(--ink); }
@@ -390,35 +408,46 @@
     vills: ['Villageois', 'Villageois sortis à la fin de chaque minute, si la file avançait sans attendre la bouffe.'],
     spent: ['Éco (dépensé / min)', 'Ressources dépensées dans la minute. On ne garde pas des milliers de ressources longtemps : dépenser plus, c\'est surtout récolter plus. C\'est la taille de ton éco, minute par minute.'] };
   let metric = 'orders', curT = null, playing = null, G = null;
-  // L'éco tenait-elle la production lancée ? Revenu estimé, coût d'une production sans arrêt des
-  // bâtiments utilisés + recherches réelles, et dépense réelle, par minute, de Castle à la fin.
-  const KEY_UP = { University: 'Université', Ballistics: 'Balistique' };
+  // Tes villageois suffisaient-ils ? Pour chaque ressource : villageois qu'il fallait (chaque
+  // bâtiment de production sans arrêt + upgrades lancées) contre ceux que tu avais, en icônes.
+  const VIL = 'https://aoe2techtree.net/img/Unit/15.png', ECO_C = ['#4f86c6', '#c98a2b', '#9a6bc0', '#5f9e5a', '#c0504d', '#3aa0a0'];
+  const ECO_ID = { 'Town Center': 621, 'Archery Range': 87, Barracks: 12, Stable: 101, 'Siege Workshop': 49 };
   function ecoBox(g) {
-    if (!g.eco || !g.eco[0]) return '';
+    if (!g.eco || !g.eco[0] || !g.eco[0].plan) return '';
     const R = [['f', 'food', 'nourriture'], ['w', 'wood', 'bois'], ['g', 'gold', 'or']];
-    const side = (e, n) => { if (!e) return '';
-      const need = r => (e.prod[r] || 0) + (e.techs[r] || 0), max = Math.max(1, ...R.flatMap(([r]) => [e.income[r] || 0, need(r), e.spent[r] || 0]));
-      const rate = r => e.vills[r] ? (e.income[r] || 0) / e.vills[r] : { f: 19, w: 21, g: 22 }[r];
-      const bar = (v, cls, t) => '<div class="eb ' + cls + '" title="' + t + '"><i style="width:' + (100 * v / max) + '%"></i><b>' + v + '</b></div>';
-      const rows = R.map(([r, img, nm]) => { const inc = e.income[r] || 0, nd = need(r), miss = Math.round((nd - inc) / rate(r));
-        return '<div class="er"><img src="https://aoe2techtree.net/img/' + img + '.png" alt="' + nm + '"><div>'
-          + bar(inc, 'inc', 'Revenu estimé : ' + (e.vills[r] || 0) + ' villageois en moyenne × vitesse avec tes upgrades')
-          + bar(nd, 'need', 'Besoin : production sans arrêt (' + (e.prod[r] || 0) + ') + recherches et bâtiments lancés (' + (e.techs[r] || 0) + ')')
-          + bar(e.spent[r] || 0, 'spent', 'Dépensé réellement')
-          + '</div><span class="' + (miss > 0 ? 'bad' : 'good') + '">' + (miss > 0 ? '−' + miss + ' vill.' : 'OK') + '</span></div>'; }).join('');
-      const by = e.by.map(([type, unit, c, pct, k]) => '<li>' + (k > 1 ? '<b>' + k + '×</b> ' : '') + esc(type) + ' · ' + esc(unit === 'Villager' ? 'villageois' : unit) + ' sans arrêt : '
-        + R.filter(([r]) => c[r]).map(([r, , nm]) => c[r] * (k || 1) + ' ' + nm + ' ≈ ' + (c[r] * (k || 1) / rate(r)).toFixed(1) + ' vill.').join(' + ') + ' <span class="mut">(réel : occupé ' + pct + ' %)</span></li>').join('')
-        + (() => { const k = (e.extra || []).filter(([nm]) => KEY_UP[nm]); if (!k.length) return '';
-          const tot = {}; k.forEach(([, c]) => Object.entries(c).forEach(([r, x]) => tot[r] = (tot[r] || 0) + x));
-          const mins = Math.max(1, (e.to - e.from) / 60);
-          return '<li><b>' + k.map(([nm]) => KEY_UP[nm]).join(' + ') + '</b> : ' + R.filter(([r]) => tot[r]).map(([r, , nm]) => tot[r] + ' ' + nm).join(' + ')
-            + ' ≈ ' + R.filter(([r]) => tot[r]).map(([r, , nm]) => (tot[r] / mins / rate(r)).toFixed(1) + ' vill. (' + nm + ')').join(' + ') + ' sur ' + Math.round(mins) + ' min</li>'; })();
-      const short = R.map(([r, , nm]) => [Math.round((need(r) - (e.income[r] || 0)) / rate(r)), nm]).filter(([m]) => m > 0);
-      const verdict = '<p class="verdict">' + (short.length ? 'Pour tout tenir, il manquait ≈ ' + short.map(([m, nm]) => '<b>' + m + '</b> villageois ' + { nourriture: 'à la nourriture', bois: 'au bois', or: 'à l\'or' }[nm]).join(', ') + '.' : 'L\'éco suffisait pour tout tenir.') + '</p>';
-      return '<div class="ecoc"><h5 style="color:' + (n ? HIM_C : ME_C) + '">' + (n ? 'Lui' : 'Toi') + ' <span class="mut">6 premières min de Castle (' + mmss(e.from * 1000) + ' → ' + mmss(e.to * 1000) + '), par minute</span></h5>' + verdict + rows
-        + '<ul class="reper">' + by + '</ul></div>'; };
-    return '<h4 style="margin-top:4px">Ton éco tenait-elle ta production ? <span class="mut" title="Revenu = estimation (villageois × vitesse moyenne). Besoin = chaque bâtiment de production utilisé, s\'il tournait sans arrêt, plus tes recherches. « −N vill. » = villageois qu\'il manquait sur cette ressource.">ⓘ</span></h4>'
-      + '<div class="eleg"><span><i class="inc"></i>revenu estimé</span><span><i class="need"></i>besoin pour tout tenir</span><span><i class="spent"></i>dépensé</span></div>'
+    const AU = { nourriture: 'à la nourriture', bois: 'au bois', or: 'à l\'or' };
+    const figs = n => '<img class="vf" src="' + VIL + '" alt="">'.repeat(Math.max(0, Math.round(n)));
+    const ord = k => k === 1 ? '1re' : k + 'e';
+    const side = (e, n) => { if (!e || !e.plan) return '';
+      const P = e.plan, items = P.items.map((it, i) => Object.assign({ c: ECO_C[i % ECO_C.length] }, it));
+      const icon = it => it.type === 'upgrades' ? '<span class="vu">🔧</span>' : '<img class="vb" src="' + IMG('Building', g.buildingIcons[ECO_ID[it.type]]) + '" alt="">';
+      const label = it => it.type === 'upgrades'
+        ? 'Upgrades : ' + it.detail.slice(0, 4).map(([nm]) => esc(nm)).join(', ') + (it.detail.length > 4 ? '…' : '')
+        : (it.n > 1 ? it.n + '× ' : '') + esc(it.type) + ' · ' + esc(it.unit === 'Villager' ? 'villageois' : it.unit) + ' sans arrêt';
+      const tip = it => it.type === 'upgrades'
+        ? 'Lancées pendant ces 6 min, en villageois sur la période :&#10;' + it.detail.map(([nm, x]) => esc(nm) + ' ≈ ' + x).join('&#10;')
+        : label(it) + ' : ' + R.filter(([r]) => it.v[r]).map(([r, , nm]) => it.v[r] + ' ' + nm).join(' + ') + ' villageois&#10;Réel : occupé ' + it.pct + ' % du temps';
+      const rows = R.map(([r, img, nm]) => { const need = P.need[r] || 0, had = P.had[r] || 0, d = Math.round(had - need);
+        const segs = items.filter(it => Math.round(it.v[r] || 0) > 0).map(it => '<span class="vseg" style="--c:' + it.c + '" title="' + tip(it) + '">' + icon(it) + figs(it.v[r]) + '</span>').join('');
+        return '<div class="vrow"><img class="vr" src="https://aoe2techtree.net/img/' + img + '.png" alt="' + nm + '"><div>'
+          + '<div class="vline"><span class="vl">fallait</span>' + segs + ' <b>' + Math.round(need) + '</b></div>'
+          + '<div class="vline"><span class="vl">avais</span><span class="vseg had">' + figs(had) + '</span> <b>' + Math.round(had) + '</b>'
+          + (d ? ' <span class="' + (d < 0 ? 'bad' : 'good') + '">' + (d < 0 ? '−' + (-d) + ' manquants' : '+' + d + ' en trop') + '</span>' : '') + '</div></div></div>'; }).join('');
+      const th = Math.round(R.reduce((a, [r]) => a + (P.had[r] || 0), 0)), tn = Math.round(R.reduce((a, [r]) => a + (P.need[r] || 0), 0));
+      const mv = m => R.filter(([r]) => Math.abs(m[r] || 0) >= 2).map(([r, , nm]) => (m[r] < 0 ? '+' + (-m[r]) : '−' + m[r]) + ' ' + AU[nm]).join(', ');
+      const v = P.kind === 'trop'
+        ? '<b>Trop de choses</b> pour ton éco : ' + th + ' villageois, il en fallait ' + tn + '. '
+          + (P.fits.length ? 'Sans ' + esc(P.fits[0] === 'upgrades' ? 'les upgrades' : 'le ' + P.fits[0]) + ', ça passait' + (mv(P.fitMoves) ? ', en mettant ' + mv(P.fitMoves) : '') + '.' : 'Même en retirant un bâtiment, ça ne passait pas : il fallait plus de villageois.')
+        : P.kind === 'repartition' ? '<b>Assez de villageois</b> (' + th + ' pour ' + tn + '), <b>mal répartis</b> : ' + mv(P.moves) + '.'
+        : '<b>Éco bien équilibrée</b> pour ce que tu produisais.';
+      const timing = P.timing.map(([t, b, k, have, need]) => '<li title="Villageois au total à ce moment, contre ceux qu\'il faut pour faire tourner sans arrêt tout ce qui est posé (TC compris, sans les upgrades)."><img class="vb" src="' + IMG('Building', g.buildingIcons[b]) + '" alt=""> '
+        + mmss(t * 1000) + ' · ' + ord(k) + ' ' + esc(g.buildingNames[b] || '') + ' : <b>' + have + '</b> vill., il en faut ≈ ' + need + ' ' + (have >= need ? '<span class="good">✓</span>' : '<span class="bad">✗ trop tôt</span>') + '</li>').join('');
+      return '<div class="ecoc"><h5 style="color:' + (n ? HIM_C : ME_C) + '">' + (n ? 'Lui' : 'Toi') + ' <span class="mut">' + mmss(e.from * 1000) + ' → ' + mmss(e.to * 1000) + '</span></h5>'
+        + '<p class="verdict">' + v + '</p>' + rows
+        + (P.other >= 1 ? '<p class="mut">+ ' + Math.round(P.other) + ' villageois ailleurs (pierre, construction, inactifs, inconnus)</p>' : '')
+        + '<div class="vleg2">' + items.map(it => '<span title="' + tip(it) + '"><i style="background:' + it.c + '"></i>' + icon(it) + ' ' + label(it) + '</span>').join('') + '</div>'
+        + (timing ? '<h5 class="vt">Bâtiments posés</h5><ul class="vtl">' + timing + '</ul>' : '') + '</div>'; };
+    return '<h4 style="margin-top:4px">Tes villageois suffisaient-ils ? <span class="mut" title="6 premières minutes de Castle. « Fallait » = villageois pour faire tourner chaque bâtiment de production sans arrêt, plus les upgrades lancées, à ta vitesse de récolte. « Avais » = moyenne estimée depuis tes ordres.">ⓘ</span></h4>'
       + '<div class="eco">' + side(g.eco[0], 0) + side(g.eco[1], 1) + '</div>';
   }
   function chart(g) {
