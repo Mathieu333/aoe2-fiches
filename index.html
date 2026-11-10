@@ -420,7 +420,7 @@
     const pt = e => { const r = svg.getBoundingClientRect(), [x, y, w, h] = view.vb; return [x + (e.clientX - r.left) / r.width * w, y + (e.clientY - r.top) / r.height * h]; };
     svg.addEventListener('wheel', e => { e.preventDefault(); const [cx, cy] = pt(e); zoom(e.deltaY > 0 ? 1.25 : 0.8, cx, cy); }, { passive: false });
     let drag = null;
-    svg.onpointerdown = e => { e.preventDefault(); drag = [e.clientX, e.clientY, view.vb.slice()]; svg.setPointerCapture(e.pointerId); svg.classList.add('drag'); };
+    svg.onpointerdown = e => { e.preventDefault(); drag = [e.clientX, e.clientY, view.vb.slice()]; try { svg.setPointerCapture(e.pointerId); } catch (_) {} svg.classList.add('drag'); };
     svg.onpointermove = e => {
       if (!drag) { hover(g, e, pt); return; }
       const r = svg.getBoundingClientRect(), [x0, y0, vb] = drag, sc = vb[2] / r.width;
@@ -442,7 +442,7 @@
   function wireScrub(g) {
     document.querySelectorAll('.scrub').forEach(el => {
       const at = e => { const r = el.getBoundingClientRect(); seek(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * span(g)); };
-      el.onpointerdown = e => { if (e.button) return; e.preventDefault(); el.setPointerCapture(e.pointerId); el.dataset.d = '1'; at(e); };
+      el.onpointerdown = e => { if (e.button) return; e.preventDefault(); try { el.setPointerCapture(e.pointerId); } catch (_) {} el.dataset.d = '1'; at(e); };
       el.onpointermove = e => { if (el.dataset.d) at(e); };
       el.onpointerup = el.onpointercancel = () => { delete el.dataset.d; };
     });
