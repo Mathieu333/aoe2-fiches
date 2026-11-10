@@ -369,7 +369,7 @@
     view.vb = view.vb || [0, 0, W, H];
     const corner = [P(0, 0), P(N, 0), P(N, N), P(0, N)].map(p => p.join(',')).join(' ');
     const terr = Object.entries(g.terrain).map(([kind, pts]) => '<g fill="' + (TERRAIN[kind] || '#888') + '"' + (kind === 'tree' ? '' : ' stroke="#0008" stroke-width=".4"') + '>'
-      + pts.map(([x, y]) => '<polygon points="' + diamond(P, x, y) + '"/>').join('') + '</g>').join('');
+      + pts.map(([x, y]) => { const gt = (g.gone || {})[x + ',' + y]; return '<polygon points="' + diamond(P, x, y) + '"' + (gt != null ? ' data-g="' + gt + '"' : '') + '/>'; }).join('') + '</g>').join('');
     return '<div class="mapctl"><button id="play" title="Lecture">▶</button><b id="mtime"></b><span class="mut">fais glisser la chronologie en dessous</span><span class="grow"></span>'
       + '<button id="zin" title="Zoom +">＋</button><button id="zout" title="Zoom −">－</button><button id="zreset" title="Toute la carte">⤢</button>'
       + '<button id="rot" title="Tourner la carte d\'un quart de tour">↻</button><button id="flip" title="Miroir">⇋</button>'
@@ -377,7 +377,7 @@
       + '<div class="mapwrap"><svg id="map" viewBox="' + view.vb.join(' ') + '"><polygon points="' + corner + '" class="ground"/>' + terr + '<g id="mlayer"></g></svg><div id="mtip" hidden></div></div>'
       + '<div class="legend">' + Object.entries(TERRAIN).filter(([k]) => g.terrain[k] && g.terrain[k].length).map(([k, c]) => '<span><i style="background:' + c + '"></i>' + TNAME[k] + '</span>').join('')
       + '<span><i style="background:#8c6a3c"></i>ferme</span><span><i style="background:#fff;border:1px solid var(--mut)"></i>porte</span><span><i style="background:#b9bcc2"></i>mur de pierre</span>'
-      + '<span><i style="background:' + ME_C + '"></i>toi</span><span><i style="background:' + HIM_C + '"></i>lui</span> · <span title="Le replay ne contient que les ordres : un mur cassé ou supprimé reste affiché, une fondation jamais construite aussi.">murs : posés, pas forcément debout ⓘ</span> · molette = zoom, glisser = déplacer, survol = détail</div>';
+      + '<span><i style="background:' + ME_C + '"></i>toi</span><span><i style="background:' + HIM_C + '"></i>lui</span> · <span title="Estimé : chaque villageois récolte là où il a été envoyé, à vitesse moyenne, puis passe au tas voisin. Morts et upgrades non comptés.">ressources vidées : estimation ⓘ</span> · <span title="Le replay ne contient que les ordres : un mur cassé ou supprimé reste affiché, une fondation jamais construite aussi.">murs : posés, pas forcément debout ⓘ</span> · molette = zoom, glisser = déplacer, survol = détail</div>';
   }
   // Emprise réelle des bâtiments (cases). Le replay donne le centre : entier si taille paire, ,5 si impaire.
   const SZ = { 'Town Center': 4, Castle: 4, Market: 4, University: 4, 'Siege Workshop': 4, Wonder: 5, House: 2, Mill: 2, 'Lumber Camp': 2, 'Mining Camp': 2, Donjon: 2,
@@ -410,6 +410,8 @@
   const rect = (P, x, y, w, h) => poly(P, [[x, y], [x + w, y], [x + w, y + h], [x, y + h]]);
   function drawMap(g) {
     const P = proj(g), t = curT, z = view.vb[2] / W, k = W / (2 * g.mapSize);
+    // Ressources vidées (estimation à partir des villageois envoyés dessus) : elles disparaissent.
+    document.querySelectorAll('#map [data-g]').forEach(e => { e.style.display = +e.dataset.g <= t ? 'none' : ''; });
     const all = placed(g, t).filter(b => !isWall(bname(g, b)) && !isGate(bname(g, b)));
     // Fond opaque sous chaque emprise : l'arbre ou l'herbe en dessous disparaît.
     let h = all.map(b => { const [x, y, s] = box(g, b); return '<polygon class="fpbase" points="' + rect(P, x, y, s, s) + '"/>'; }).join('');
