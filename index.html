@@ -147,6 +147,30 @@
   .eb.inc i, .eleg .inc { background: #4f9d69; } .eb.need i, .eleg .need { background: #c9a227; } .eb.spent i, .eleg .spent { background: #8a8f98; }
   .eleg { display: flex; gap: 14px; font-size: 12.5px; margin-bottom: 4px; } .eleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
   .reper { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+  .gtabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; } .gtabs .mut { margin-left: 6px; font-size: 12.5px; }
+  .verdict { font-size: 15px; margin: 4px 0 8px; } .hu { white-space: nowrap; margin-right: 6px; cursor: help; }
+  .pl { display: inline-flex; align-items: center; gap: 2px; border-left: 3px solid var(--c); padding-left: 2px; } .pl img { width: 18px; height: 18px; border-radius: 3px; } .pl b { font-size: 10.5px; }
+  .lane.prod { height: 22px; } .prod .from { position: absolute; top: 9px; height: 4px; background: var(--line); border-radius: 2px; }
+  .prod .busy { position: absolute; top: 5px; height: 12px; background: var(--c); border-radius: 2px; min-width: 1px; } .prod .busy:hover { outline: 2px solid var(--ink); }
+  .res.idle { background: #5a2a22; }
+  .eco { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } @media (max-width: 800px) { .eco { grid-template-columns: 1fr; } }
+  .ecoc h5 { margin: 0 0 6px; font-size: 15px; } .er { display: grid; grid-template-columns: 26px 1fr 64px; gap: 6px; align-items: center; margin: 6px 0; } .er img { width: 24px; height: 24px; }
+  .eb { position: relative; height: 13px; margin: 1px 0; cursor: help; } .eb i { display: block; height: 100%; border-radius: 2px; } .eb b { position: absolute; left: 4px; top: -1px; font-size: 10.5px; color: #fff; text-shadow: 0 0 2px #000; }
+  .eb.inc i, .eleg .inc { background: #4f9d69; } .eb.need i, .eleg .need { background: #c9a227; } .eb.spent i, .eleg .spent { background: #8a8f98; }
+  .eleg { display: flex; gap: 14px; font-size: 12.5px; margin-bottom: 4px; } .eleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+  .reper { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+  .gtabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; } .gtabs .mut { margin-left: 6px; font-size: 12.5px; }
+  .verdict { font-size: 15px; margin: 4px 0 8px; } .hu { white-space: nowrap; margin-right: 6px; cursor: help; }
+  .pl { display: inline-flex; align-items: center; gap: 2px; border-left: 3px solid var(--c); padding-left: 2px; } .pl img { width: 18px; height: 18px; border-radius: 3px; } .pl b { font-size: 10.5px; }
+  .lane.prod { height: 22px; } .prod .from { position: absolute; top: 9px; height: 4px; background: var(--line); border-radius: 2px; }
+  .prod .busy { position: absolute; top: 5px; height: 12px; background: var(--c); border-radius: 2px; min-width: 1px; } .prod .busy:hover { outline: 2px solid var(--ink); }
+  .res.idle { background: #5a2a22; }
+  .eco { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } @media (max-width: 800px) { .eco { grid-template-columns: 1fr; } }
+  .ecoc h5 { margin: 0 0 6px; font-size: 15px; } .er { display: grid; grid-template-columns: 26px 1fr 64px; gap: 6px; align-items: center; margin: 6px 0; } .er img { width: 24px; height: 24px; }
+  .eb { position: relative; height: 13px; margin: 1px 0; cursor: help; } .eb i { display: block; height: 100%; border-radius: 2px; } .eb b { position: absolute; left: 4px; top: -1px; font-size: 10.5px; color: #fff; text-shadow: 0 0 2px #000; }
+  .eb.inc i, .eleg .inc { background: #4f9d69; } .eb.need i, .eleg .need { background: #c9a227; } .eb.spent i, .eleg .spent { background: #8a8f98; }
+  .eleg { display: flex; gap: 14px; font-size: 12.5px; margin-bottom: 4px; } .eleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+  .reper { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
   .pl { display: inline-flex; align-items: center; gap: 2px; border-left: 3px solid var(--c); padding-left: 2px; } .pl img { width: 18px; height: 18px; border-radius: 3px; } .pl b { font-size: 10.5px; }
   .lane.prod { height: 22px; } .prod .from { position: absolute; top: 9px; height: 4px; background: var(--line); border-radius: 2px; }
   .prod .busy { position: absolute; top: 5px; height: 12px; background: var(--c); border-radius: 2px; min-width: 1px; } .prod .busy:hover { outline: 2px solid var(--ink); }
@@ -368,6 +392,7 @@
   let metric = 'orders', curT = null, playing = null, G = null;
   // L'éco tenait-elle la production lancée ? Revenu estimé, coût d'une production sans arrêt des
   // bâtiments utilisés + recherches réelles, et dépense réelle, par minute, de Castle à la fin.
+  const KEY_UP = { University: 'Université', Ballistics: 'Balistique' };
   function ecoBox(g) {
     if (!g.eco || !g.eco[0]) return '';
     const R = [['f', 'food', 'nourriture'], ['w', 'wood', 'bois'], ['g', 'gold', 'or']];
@@ -378,11 +403,16 @@
       const rows = R.map(([r, img, nm]) => { const inc = e.income[r] || 0, nd = need(r), miss = Math.round((nd - inc) / rate(r));
         return '<div class="er"><img src="https://aoe2techtree.net/img/' + img + '.png" alt="' + nm + '"><div>'
           + bar(inc, 'inc', 'Revenu estimé : ' + (e.vills[r] || 0) + ' villageois en moyenne × vitesse avec tes upgrades')
-          + bar(nd, 'need', 'Besoin : production sans arrêt (' + (e.prod[r] || 0) + ') + recherches lancées (' + (e.techs[r] || 0) + ')')
+          + bar(nd, 'need', 'Besoin : production sans arrêt (' + (e.prod[r] || 0) + ') + recherches et bâtiments lancés (' + (e.techs[r] || 0) + ')')
           + bar(e.spent[r] || 0, 'spent', 'Dépensé réellement')
           + '</div><span class="' + (miss > 0 ? 'bad' : 'good') + '">' + (miss > 0 ? '−' + miss + ' vill.' : 'OK') + '</span></div>'; }).join('');
-      const by = e.by.map(([type, unit, c, pct]) => '<li>' + esc(type) + ' · ' + esc(unit === 'Villager' ? 'villageois' : unit) + ' sans arrêt : '
-        + R.filter(([r]) => c[r]).map(([r, , nm]) => c[r] + ' ' + nm + ' ≈ ' + (c[r] / rate(r)).toFixed(1) + ' vill.').join(' + ') + ' <span class="mut">(réel : occupé ' + pct + ' %)</span></li>').join('');
+      const by = e.by.map(([type, unit, c, pct, k]) => '<li>' + (k > 1 ? '<b>' + k + '×</b> ' : '') + esc(type) + ' · ' + esc(unit === 'Villager' ? 'villageois' : unit) + ' sans arrêt : '
+        + R.filter(([r]) => c[r]).map(([r, , nm]) => c[r] * (k || 1) + ' ' + nm + ' ≈ ' + (c[r] * (k || 1) / rate(r)).toFixed(1) + ' vill.').join(' + ') + ' <span class="mut">(réel : occupé ' + pct + ' %)</span></li>').join('')
+        + (() => { const k = (e.extra || []).filter(([nm]) => KEY_UP[nm]); if (!k.length) return '';
+          const tot = {}; k.forEach(([, c]) => Object.entries(c).forEach(([r, x]) => tot[r] = (tot[r] || 0) + x));
+          const mins = Math.max(1, (e.to - e.from) / 60);
+          return '<li><b>' + k.map(([nm]) => KEY_UP[nm]).join(' + ') + '</b> : ' + R.filter(([r]) => tot[r]).map(([r, , nm]) => tot[r] + ' ' + nm).join(' + ')
+            + ' ≈ ' + R.filter(([r]) => tot[r]).map(([r, , nm]) => (tot[r] / mins / rate(r)).toFixed(1) + ' vill. (' + nm + ')').join(' + ') + ' sur ' + Math.round(mins) + ' min</li>'; })();
       const short = R.map(([r, , nm]) => [Math.round((need(r) - (e.income[r] || 0)) / rate(r)), nm]).filter(([m]) => m > 0);
       const verdict = '<p class="verdict">' + (short.length ? 'Pour tout tenir, il manquait ≈ ' + short.map(([m, nm]) => '<b>' + m + '</b> villageois ' + { nourriture: 'à la nourriture', bois: 'au bois', or: 'à l\'or' }[nm]).join(', ') + '.' : 'L\'éco suffisait pour tout tenir.') + '</p>';
       return '<div class="ecoc"><h5 style="color:' + (n ? HIM_C : ME_C) + '">' + (n ? 'Lui' : 'Toi') + ' <span class="mut">6 premières min de Castle (' + mmss(e.from * 1000) + ' → ' + mmss(e.to * 1000) + '), par minute</span></h5>' + verdict + rows
