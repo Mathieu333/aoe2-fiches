@@ -172,6 +172,8 @@
   .mchip { display: inline-flex; align-items: center; gap: 1px; padding: 2px 5px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--mut); font-size: 12px; cursor: pointer; opacity: .45; }
   .mchip.on { opacity: 1; border-color: var(--ink); color: var(--ink); } .mchip img { width: 20px; height: 20px; border-radius: 3px; display: block; }
   .mb.mt-on, .mb.mt-off { cursor: pointer; } .mb.mt-on:hover img { outline: 2px solid #e4675c; } .mb.mt-off { opacity: .35; filter: grayscale(1); } .mb.mt-off:hover { opacity: .8; }
+  .mb .mu { position: absolute; left: -5px; bottom: -5px; } .mb .mu img { width: 13px; height: 13px; border-radius: 2px; outline: 1px solid var(--panel); }
+  .mb.ug::after { content: '↑'; position: absolute; right: -5px; top: -6px; font: 700 11px system-ui; color: #5cc48a; }
   .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
 </style>
 <div class="wrap">
@@ -505,15 +507,16 @@
         + (r === 'f' ? Object.entries(FOODR).map(([k, [, l]]) => '<button class="mchip' + (st.food === k ? ' on' : '') + '" data-ms="' + n + ',food,' + k + '">' + l + '</button>').join('') : '')
         + MX[r].map(([id, nm, pic]) => '<button class="mchip' + (st.ups.has(id) ? ' on' : '') + '" data-ms="' + n + ',up,' + id + '" title="' + nm + '"><img src="' + IMG('Tech', pic) + '" alt="' + nm + '"></button>').join('') + '</span>').join('')
       + '</div>' : '';
-    const bimg = ty => g.buildingIcons[TYPE_ID[ty]] != null ? '<img src="' + IMG('Building', g.buildingIcons[TYPE_ID[ty]]) + '" alt="">' : esc(ty.slice(0, 3));
+    const bimg = (ty, i) => (g.buildingIcons[TYPE_ID[ty]] != null ? '<img src="' + IMG('Building', g.buildingIcons[TYPE_ID[ty]]) + '" alt="">' : esc(ty.slice(0, 3)))
+      + (i != null && M && M.blds[i] && M.blds[i].pic != null ? '<i class="mu"><img src="' + IMG('Unit', M.blds[i].pic) + '" alt=""></i>' : '');
     const rows = tl.map(([t, need, had, types, nr, hr, once, all, soonAll]) => {
       let blds, ups;
       if (all) {  // simulateur : un clic sur un bâtiment en coupe un (le dernier posé), sur un grisé le remet
         const by = {}; all.forEach(([b, i]) => (by[b.type] = by[b.type] || []).push(i));
         blds = Object.entries(by).map(([ty, ids]) => { const on = ids.filter(i => !st.offB.has(i)), off = ids.filter(i => st.offB.has(i));
-          return (on.length ? '<span class="mb mt-on" data-ms="' + n + ',b,' + on[on.length - 1] + '" title="' + esc(ty) + (on.length > 1 ? ' ×' + on.length : '') + ' : produit sans arrêt (' + esc(M.blds[on[0]].unit) + '). Clic : en couper un">' + bimg(ty) + (on.length > 1 ? '<b>×' + on.length + '</b>' : '') + '</span>' : '')
-            + (off.length ? '<span class="mb mt-off" data-ms="' + n + ',b,' + off[0] + '" title="' + esc(ty) + ' coupé. Clic : le remettre">' + bimg(ty) + (off.length > 1 ? '<b>×' + off.length + '</b>' : '') + '</span>' : ''); }).join('');
-        ups = soonAll.map(([o, i]) => '<span class="mb up ' + (st.offO.has(i) ? 'mt-off' : 'mt-on') + '" data-ms="' + n + ',o,' + i + '" title="' + esc(o[2]) + ' cliqué à ' + T(o[0]) + ' : son coût se récolte pendant les 2 min avant. Clic : ' + (st.offO.has(i) ? 'le remettre' : 'le couper') + '">'
+          return (on.length ? '<span class="mb mt-on" data-ms="' + n + ',b,' + on[on.length - 1] + '" title="' + esc(ty) + (on.length > 1 ? ' ×' + on.length : '') + ' : produit sans arrêt (' + esc(M.blds[on[0]].unit) + '). Clic : en couper un">' + bimg(ty, on[0]) + (on.length > 1 ? '<b>×' + on.length + '</b>' : '') + '</span>' : '')
+            + (off.length ? '<span class="mb mt-off" data-ms="' + n + ',b,' + off[0] + '" title="' + esc(ty) + ' coupé. Clic : le remettre">' + bimg(ty, off[0]) + (off.length > 1 ? '<b>×' + off.length + '</b>' : '') + '</span>' : ''); }).join('');
+        ups = soonAll.map(([o, i]) => '<span class="mb up ' + (o[3] === 'Unit' ? 'ug ' : '') + (st.offO.has(i) ? 'mt-off' : 'mt-on') + '" data-ms="' + n + ',o,' + i + '" title="' + esc(o[2]) + ' cliqué à ' + T(o[0]) + ' : son coût se récolte pendant les 2 min avant. Clic : ' + (st.offO.has(i) ? 'le remettre' : 'le couper') + '">'
           + (o[4] != null ? '<img src="' + IMG(o[3], o[4]) + '" alt="">' : esc(o[2].slice(0, 3))) + '</span>').join('');
       } else {
         const k = {}; types.forEach(x => k[x] = (k[x] || 0) + 1);
