@@ -488,12 +488,12 @@
     const rate = { f: FOODR[st.food][0] * (on(213) ? 1.1 : 1) * (on(249) ? 1.1 : 1), w: 23.4 * (on(202) ? 1.2 : 1) * (on(203) ? 1.2 : 1), g: 22.8 * (on(55) ? 1.15 : 1) };
     return M.mins.map((t, k) => {
       const all = M.blds.map((b, i) => [b, i]).filter(([b]) => b.first <= t && b.starts.some(j => t - 180 <= j && j <= t + 60)), live = all.filter(([, i]) => !st.offB.has(i));
-      const nr = { f: 0, w: 0, g: 0 };
-      live.forEach(([b]) => Object.entries(b.pm).forEach(([r, x]) => nr[r] += x / rate[r]));
+      const nr = { f: 0, w: 0, g: 0 }, det = { f: [], w: [], g: [] };
+      live.forEach(([b]) => Object.entries(b.pm).forEach(([r, x]) => { nr[r] += x / rate[r]; det[r].push([b.type + ' (' + b.unit + ', ' + Math.round(x) + '/min)', x / rate[r]]); }));
       const soonAll = M.once.map((o, i) => [o, i]).filter(([o]) => t <= o[0] && o[0] < t + 120), soon = soonAll.filter(([, i]) => !st.offO.has(i));
-      soon.forEach(([o]) => Object.entries(o[1]).forEach(([r, x]) => { if (rate[r]) nr[r] += x / 2 / rate[r]; }));
+      soon.forEach(([o]) => Object.entries(o[1]).forEach(([r, x]) => { if (rate[r]) { nr[r] += x / 2 / rate[r]; det[r].push([o[2] + ' (' + x + ' sur 2 min)', x / 2 / rate[r]]); } }));
       const hr = M.had[k], need = Math.round(nr.f + nr.w + nr.g), had = hr.f + hr.w + hr.g;
-      return [t, need, had, live.map(([b]) => b.type), nr, hr, soon.map(([o]) => [o[0], o[2], o[3], o[4]]), all, soonAll];
+      return [t, need, had, live.map(([b]) => b.type), nr, hr, soon.map(([o]) => [o[0], o[2], o[3], o[4]]), all, soonAll, det, rate];
     });
   }
   function ecoSide(g, n) {
@@ -509,7 +509,7 @@
       + '</div>' : '';
     const bimg = (ty, i) => (g.buildingIcons[TYPE_ID[ty]] != null ? '<img src="' + IMG('Building', g.buildingIcons[TYPE_ID[ty]]) + '" alt="">' : esc(ty.slice(0, 3)))
       + (i != null && M && M.blds[i] && M.blds[i].pic != null ? '<i class="mu"><img src="' + IMG('Unit', M.blds[i].pic) + '" alt=""></i>' : '');
-    const rows = tl.map(([t, need, had, types, nr, hr, once, all, soonAll]) => {
+    const rows = tl.map(([t, need, had, types, nr, hr, once, all, soonAll, det, rate]) => {
       let blds, ups;
       if (all) {  // simulateur : un clic sur un bâtiment en coupe un (le dernier posé), sur un grisé le remet
         const by = {}; all.forEach(([b, i]) => (by[b.type] = by[b.type] || []).push(i));
@@ -524,7 +524,9 @@
         ups = (once || []).map(([c, nm, kind, pic]) => '<span class="mb up" title="' + esc(nm) + ' — ' + T(c) + '">' + (pic != null ? '<img src="' + IMG(kind, pic) + '" alt="">' : esc(nm.slice(0, 3))) + '</span>').join('');
       }
       const res = R.map(([r, img, nm]) => { const a = Math.ceil((nr[r] || 0) - 0.05), b = hr[r] || 0;
-        return '<td class="' + (a > b + 1 ? 'bad' : '') + '" title="' + nm + ' : il fallait ' + (Math.round((nr[r] || 0) * 10) / 10) + ', tu en avais ' + b + '">' + a + '<span class="mut">/' + b + '</span></td>'; }).join('');
+        const tip = nm + ' : il fallait ' + (Math.round((nr[r] || 0) * 10) / 10) + ', tu en avais ' + b
+          + (det ? '&#10;1 villageois = ' + Math.round(rate[r] * 10) / 10 + ' ' + nm + '/min&#10;' + det[r].map(([l, v]) => '• ' + esc(l) + ' → ' + (Math.round(v * 10) / 10)).join('&#10;') : '');
+        return '<td class="' + (a > b + 1 ? 'bad' : '') + '" title="' + tip + '">' + a + '<span class="mut">/' + b + '</span></td>'; }).join('');
       return '<tr class="' + (need > 1.15 * had ? 'over' : '') + '"><td>' + T(t) + '</td><td>' + blds + (ups ? '<span class="mplus">+</span>' + ups : '') + '</td>' + res
         + '<td><b class="' + (need > 1.15 * had ? 'bad' : 'good') + '">' + need + '</b><span class="mut">/' + had + '</span></td></tr>'; }).join('');
     return '<h5 style="color:' + (n ? HIM_C : ME_C) + '">' + (n ? 'Lui' : 'Toi') + '</h5>' + chips + '<table class="mt"><tr><th></th><th>Bâtiments actifs + recherches</th>'
