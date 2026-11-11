@@ -145,6 +145,19 @@
   .c1 .lane.cl { border-left: 3px solid var(--c); } .csep { height: 6px; }
   #ctip { position: fixed; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 12.5px; box-shadow: 0 2px 10px #0006; max-width: 360px; }
   #ctip div { display: flex; align-items: center; gap: 6px; margin: 2px 0; } #ctip img { width: 22px; height: 22px; border-radius: 3px; }
+  .vcard { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 10px 0; } @media (max-width: 800px) { .vcard { grid-template-columns: 1fr 1fr; } }
+  .vc { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--panel); } .vc h5 { margin: 0; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--mut); }
+  .vc > b { font-size: 24px; line-height: 1.2; display: block; } .vc small { display: block; font-size: 12.5px; line-height: 1.35; } .warn { color: #c98a2b; }
+  .vwin { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 6px; align-items: center; margin: 8px 0; } .vwin > div { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; display: flex; flex-direction: column; font-size: 13px; }
+  .vwin em { font-style: normal; color: var(--mut); font-size: 18px; } @media (max-width: 800px) { .vwin { grid-template-columns: 1fr; } .vwin em { display: none; } }
+  .vcut { margin: 8px 0; font-size: 13.5px; } .vcut h5 { margin: 0 0 2px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--mut); } .vcut s { font-weight: 600; }
+  .vstone { margin: 8px 0; font-size: 13.5px; color: #e4675c; } .allf { margin: 6px 0; font-size: 13px; } .allf summary { cursor: pointer; color: var(--mut); }
+  .chopt { display: flex; gap: 14px; font-size: 13px; margin: 0 0 6px; } .chopt label { cursor: pointer; }
+  .lane.thin { height: 10px; } .idl { position: absolute; top: 2px; bottom: 2px; background: #e4675c; border-radius: 2px; min-width: 2px; }
+  .bpl { position: absolute; top: 1px; transform: translateX(-50%); z-index: 2; } .bpl img { width: 18px; height: 18px; border-radius: 3px; display: block; outline: 2px solid var(--c); }
+  .apml { position: absolute; inset: 0; width: 100%; height: 100%; } .apt { position: absolute; top: 0; bottom: 0; }
+  .lane.mkl { height: 20px; border-bottom: 0; } .mk { position: absolute; top: 1px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: #e4675c; color: #fff; font: 700 11px/18px system-ui; text-align: center; cursor: help; }
+  .mkleg { list-style: none; padding: 0; margin: 6px 0 0; font-size: 13px; } .mkleg li { margin: 3px 0; } .mkleg b { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: #e4675c; color: #fff; font: 700 11px/18px system-ui; text-align: center; margin-right: 6px; }
   .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
 </style>
 <div class="wrap">
@@ -498,7 +511,23 @@
         return '<span class="agebar" style="top:auto;bottom:1px;height:16px;left:' + pc(g, ck / 1000) + ';width:' + pc(g, (r - ck) / 1000) + ';--c:' + c + '" data-tip="' + a + ' : clic ' + mmss(ck) + ', arrivée ' + mmss(r) + '" data-s="' + Math.ceil(r / 1000) + '"><b>' + a + '</b><em>' + mmss(r) + '</em></span>'; }).join('');
       return '<div class="lane scrub cl" style="height:' + (h1 + 18) + 'px;--c:' + c + '">' + ages + ev + '<i class="ph"></i></div>'
         + '<div class="lane scrub cl" style="height:' + h2 + 'px;--c:' + c + '">' + hz(side) + un + '<i class="ph"></i></div>'; };
-    return '<div class="chrono c1">' + merged(0) + '<div class="csep"></div>' + merged(1) + '</div>';
+    const T = x => mmss(x * 1000), V = g.verdict || {};
+    const builtAt = side => { const out = {}; g.mapEvents.builds.filter(b => b[1] === side).forEach(b => (out[b[2]] = out[b[2]] || []).push(b[0])); return out; };
+    const prodL = side => { if (!chOpt.prod) return ''; const c = side ? HIM_C : ME_C, at = builtAt(side), k = {};
+      return ((g.prod || [])[side] || []).slice().sort((a, b) => a.busy[0][0] - b.busy[0][0]).map(b => { const id = TYPE_ID[b.type], pic = g.buildingIcons[id], i = k[id] = (k[id] || 0) + 1;
+        const t0 = b.type === 'Town Center' && i === 1 ? 0 : ((at[id] || [])[b.type === 'Town Center' ? i - 2 : i - 1] ?? b.busy[0][0]);
+        return '<div class="lane scrub cl prod" style="--c:' + c + '">' + (pic != null && t0 ? '<span class="bpl" style="left:' + pc(g, t0) + '" data-s="' + t0 + '" data-tip="' + esc(b.type) + ' posé — ' + T(t0) + '"><img src="' + IMG('Building', pic) + '" alt=""></span>' : '')
+          + '<span class="from" style="left:' + pc(g, t0) + ';width:calc(100% - ' + pc(g, t0) + ')"></span>'
+          + b.busy.map(x => '<span class="busy" style="left:' + pc(g, x[0]) + ';width:' + pc(g, x[1] - x[0]) + ';--c:' + c + '" data-s="' + x[0] + '" data-tip="' + esc(b.type) + ' : ' + esc(x[2]) + ' ' + T(x[0]) + ' → ' + T(x[1]) + '"></span>').join('')
+          + '<i class="ph"></i></div>'; }).join(''); };
+    const idleL = side => !chOpt.idle || side ? '' : '<div class="lane scrub cl thin" style="--c:' + ME_C + '">' + (g.gaps || []).map(([a, b]) => '<span class="idl" style="left:' + pc(g, a / 1000) + ';width:' + pc(g, (b - a) / 1000) + '" data-s="' + Math.round(a / 1000) + '" data-tip="TC vide ' + mmss(a) + ' → ' + mmss(b) + ' (' + Math.round((b - a) / 1000) + ' s)"></span>').join('') + '<i class="ph"></i></div>';
+    const apmL = side => { if (!chOpt.apm || !g.series || !g.series.apm) return ''; const a = g.series.apm[side] || [], mx = Math.max(1, ...g.series.apm[0], ...g.series.apm[1]), n = a.length, span = g.game_ms / 1000;
+      return '<div class="lane scrub cl" style="--c:' + (side ? HIM_C : ME_C) + '"><svg class="apml" viewBox="0 0 ' + span + ' 26" preserveAspectRatio="none"><polyline fill="none" stroke="' + (side ? HIM_C : ME_C) + '" stroke-width="2" vector-effect="non-scaling-stroke" points="'
+        + a.map((v, i) => (i * 60 + 30) + ',' + (25 - v / mx * 23).toFixed(1)).join(' ') + '"/></svg>' + a.map((v, i) => '<span class="apt" style="left:' + pc(g, i * 60) + ';width:' + pc(g, 60) + '" data-s="' + (i * 60 + 30) + '" data-tip="APM ' + i + '–' + (i + 1) + ' min : ' + v + '"></span>').join('') + '<i class="ph"></i></div>'; };
+    const marks = (V.marks || []).length ? '<div class="lane cl mkl" style="--c:transparent">' + V.marks.map(([t, txt], i) => '<span class="mk" style="left:' + pc(g, t) + '" data-s="' + t + '" data-tip="' + esc(txt) + '">' + (i + 1) + '</span>').join('') + '</div>' : '';
+    const legend = (V.marks || []).length ? '<ol class="mkleg">' + V.marks.map(([t, txt], i) => '<li><b>' + (i + 1) + '</b>' + esc(txt) + '</li>').join('') + '</ol>' : '';
+    const opts = '<div class="chopt">' + [['prod', 'Production'], ['apm', 'APM'], ['idle', 'TC vide']].map(([k, l]) => '<label><input type="checkbox" data-co="' + k + '"' + (chOpt[k] ? ' checked' : '') + '> ' + l + '</label>').join('') + '</div>';
+    return opts + '<div class="chrono c1">' + marks + merged(0) + idleL(0) + prodL(0) + apmL(0) + '<div class="csep"></div>' + merged(1) + prodL(1) + apmL(1) + '</div>' + legend;
   }
 
   // Carte : terrain du début (une case = un losange), TC de départ, bâtiments à leur pose (la
@@ -603,6 +632,8 @@
     h += all.filter(b => bname(g, b) !== 'Farm').map((b, n) => { const pic = g.buildingIcons[b[2]] ?? g.buildingIcons['621'], [x, y, s] = box(g, b), [a, c] = P(b[3], b[4]);
       const sz = s * k * 1.15; if (pic == null || sz / z < 6) return '';
       return '<clipPath id="cp' + n + '"><polygon points="' + rect(P, x, y, s, s) + '"/></clipPath><image clip-path="url(#cp' + n + ')" href="' + IMG('Building', pic) + '" x="' + (a - sz / 2) + '" y="' + (c - sz / 2) + '" width="' + sz + '" height="' + sz + '"/>'; }).join('');
+    const st = g.verdict && g.verdict.stone;
+    if (st) { const [a, c] = P(st.x + .5, st.y + .5); h += '<circle cx="' + a + '" cy="' + c + '" r="' + (14 * z) + '" fill="none" stroke="#e4675c" stroke-width="' + (2.5 * z) + '"/><text x="' + a + '" y="' + (c - 16 * z) + '" font-size="' + (16 * z) + '" text-anchor="middle" class="clab" fill="#e4675c">⚠ pierre</text>'; }
     if ($('mclicks').checked) h += clickLayer(g, P, t, z);
     $('mlayer').innerHTML = h;
     $('mtime').textContent = mmss(t * 1000);
@@ -733,7 +764,25 @@
     document.querySelectorAll('.ph').forEach(p => p.style.left = pc(G, curT));
   }
   function wireSnap() { document.querySelectorAll('[data-jump]').forEach(b => b.onclick = () => seek(+b.dataset.jump)); }
-  const GTABS = [['chrono', 'Chronologie'], ['prod', 'Production'], ['eco', 'Éco vs production'], ['graph', 'Graphe APM / villageois'], ['details', 'Détails']];
+  // Bulletin (S112) : plan / macro / TC / micro, ta fenêtre de réaction, ce qu'il fallait couper, la pierre.
+  function verdictBox(g) {
+    const V = g.verdict; if (!V || !V.card) return '';
+    const ST = { ok: ['✓', 'good'], ko: ['✗', 'bad'], mid: ['≈', 'warn'], '?': ['?', 'mut'] }, T = x => mmss(x * 1000);
+    const card = (k, l) => { const [s, t] = V.card[k], [ic, cl] = ST[s] || ST['?'];
+      return '<div class="vc"><h5>' + l + '</h5><b class="' + cl + '">' + ic + '</b><small>' + esc(t) + '</small></div>'; };
+    const w = V.window, okw = w && ((w.mango && w.mango - w.es <= 90) || (w.tc && w.tc - w.es <= 120));
+    const win = w ? '<div class="vwin"><div><b style="color:' + ME_C + '">Ta pression</b><span>Crossbow ' + T(w.press) + (w.ranges > 1 ? ' · ' + w.ranges + ' ranges' : '') + '</span></div><em>→</em>'
+      + '<div><b style="color:' + HIM_C + '">Il s’engage</b><span>' + (w.gold != null ? '≈ ' + w.gold + ' vill. à l’or · ' : '') + 'Elite Skirm ' + T(w.es)
+      + (w.armor.length ? ' · ' + w.armor.map(a => a[0]).join(' + ') : '') + '</span></div><em>→</em>'
+      + '<div><b>Ta fenêtre : ' + T(w.es) + '</b><span class="' + (okw ? 'good' : 'bad') + '">Mango ' + (w.mango ? T(w.mango) : 'jamais') + ' · TC ' + (w.tc ? T(w.tc) : 'jamais') + '</span><span class="mut">CA7, CA3</span></div></div>' : '';
+    const cut = V.cut && V.cut.length ? '<div class="vcut"><h5>Ce qu’il fallait couper</h5>' + V.cut.map(([n, t, why]) => '<div><s>' + esc(n) + ' ' + T(t) + '</s> <span class="mut">' + esc(why) + '</span></div>').join('') + '</div>' : '';
+    const st = V.stone ? '<div class="vstone">⚠ Ta pierre est avancée, du côté de l’adversaire (' + V.stone.me + ' cases de ton TC) : un TC sur pierre y était exposé. <span class="mut">⚠ sur la carte.</span></div>' : '';
+    return '<div class="vcard">' + card('plan', 'Plan') + card('macro', 'Macro') + card('tc', 'TC') + card('micro', 'Micro') + '</div>' + win + cut + st;
+  }
+  const chOpt = Object.assign({ prod: true, apm: false, idle: true }, (() => { try { return JSON.parse(store('chopt') || '{}'); } catch (e) { return {}; } })());
+  document.addEventListener('change', ev => { const k = ev.target.dataset && ev.target.dataset.co; if (!k || !G) return;
+    chOpt[k] = ev.target.checked; store('chopt', JSON.stringify(chOpt)); renderGame(); });
+  const GTABS = [['chrono', 'Chronologie'], ['eco', 'Éco vs production'], ['details', 'Détails']];
   let gtab = GTABS.some(([k]) => k === store('gtab')) ? store('gtab') : 'chrono';
   function renderGame() {
     const g = G, both = civs.includes(g.mine) && civs.includes(g.vs);
@@ -745,7 +794,8 @@
       + ' · ' + esc(g.account) + ' (' + g.rating + (g.ratingDiff ? ', ' + (g.ratingDiff > 0 ? '+' : '') + g.ratingDiff : '') + ') contre ' + esc(g.opp) + ' (' + (g.oppRating || '?') + ')'
       + ' · <a href="https://www.aoe2insights.com/match/' + g.match + '/" target="_blank" rel="noopener">AoE2 Insights</a>'
       + (both ? ' · <a href="#' + slug(g.mine) + '--' + slug(g.vs) + '">fiche du matchup</a>' : '') + '</span></div>'
-      + '<ul class="flags big">' + g.flags.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>'
+      + (g.verdict && g.verdict.card ? verdictBox(g) + '<details class="allf"><summary>Toutes les alertes (' + g.flags.length + ')</summary><ul class="flags">' + g.flags.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul></details>'
+        : '<ul class="flags big">' + g.flags.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>')
       + '<div class="mapsnap"><div>' + mapView(g) + '</div><div id="snapbox"></div></div>'
       + '<div class="gtabs">' + GTABS.map(([k, l]) => '<button class="fchip' + (gtab === k ? ' on' : '') + '" data-gtab="' + k + '">' + l + '</button>').join('')
       + '<span class="mut">clique ou fais glisser une ligne pour choisir l\'instant</span></div>'
