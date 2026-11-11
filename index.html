@@ -396,7 +396,7 @@
       const icon = row.img && row.img[1] != null ? '<img class="pu" src="' + IMG(row.img[0], row.img[1]) + '" alt="">' : '<span class="pu">🔧</span>';
       const ctl = row.once ? '<input type="checkbox" data-pp="' + side + ',' + i + ',t"' + (off ? '' : ' checked') + '>'
         : '<span class="pn"><button data-pp="' + side + ',' + i + ',-1">−</button><b>' + st.n[i] + '</b><button data-pp="' + side + ',' + i + ',1">+</button></span>';
-      const what = row.once ? esc(row.t) + '<span class="mut"> · ' + costTxt(row.c) + (row.m ? ', cliqué ' + mmss(row.at * 1000) + ' → à payer en ' + row.m + ' min depuis le clic Castle' : ', sur ' + mins + ' min') + '</span>'
+      const what = row.once ? esc(row.t) + '<span class="mut"> · ' + costTxt(row.c) + (row.m ? ', idéal ' + mmss(row.at * 1000) + ' (toi ' + mmss(row.real * 1000) + ') → payé en ' + row.m + ' min depuis le clic Castle' : ', sur ' + mins + ' min') + '</span>'
         : esc(row.u) + '<span class="mut"> · ' + costTxt(row.uc || {}) + ' / ' + row.ut + ' s' + (row.pct != null ? ' · occupé ' + row.pct + ' %' : '') + '</span>';
       return '<div class="pl2' + (off ? ' off' : '') + '">' + ctl + icon + '<span class="pw">' + what + '</span>'
         + '<span class="pls">' + ['f', 'w', 'g'].filter(r => v[r]).map(r => ladder(r, v[r], row.once)).join('') + '</span></div>'; };
@@ -423,7 +423,7 @@
   function ecoBox(g) {
     if (!g.eco || !g.eco[0] || !g.eco[0].plan || !g.eco[0].plan.calc) return '';
     if (plans.g !== g) { plans.g = g; plans[0] = { n: [] }; plans[1] = { n: [] }; }
-    return '<h4 style="margin-top:4px">Villageois nécessaires <span class="mut" title="6 premières min de Castle. Chaque bâtiment compté comme s’il produisait sans arrêt ; recherches et bâtiments payés entre le clic Castle et leur clic. Chiffres : sans upgrade → avec chaque upgrade d’éco ; entouré = ce que le joueur avait. Change le nombre de bâtiments ou décoche une recherche pour voir ce qui passait.">ⓘ</span></h4>'
+    return '<h4 style="margin-top:4px">Villageois nécessaires <span class="mut" title="6 premières min de Castle. Chaque bâtiment compté comme s’il produisait sans arrêt ; recherches et bâtiments au timing idéal (dès l’arrivée Castle, techs d’université dès qu’elle est finie), payés depuis le clic Castle. Chiffres : sans upgrade → avec chaque upgrade d’éco ; entouré = ce que le joueur avait. Change le nombre de bâtiments ou décoche une recherche pour voir ce qui passait.">ⓘ</span></h4>'
       + '<div class="eco"><div id="plan0">' + planBox(g, 0) + '</div><div id="plan1">' + planBox(g, 1) + '</div></div>';
   }
   function chart(g) {
