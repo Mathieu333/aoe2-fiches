@@ -165,6 +165,9 @@
   .gdots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; } .gdots span { padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line); font-size: 13px; cursor: help; } .gdots b { font-size: 14px; }
   .gmini { width: 150px; flex: none; } .gmini svg { width: 150px; height: 80px; display: block; } .gmini small { display: block; text-align: center; color: var(--mut); font-size: 11.5px; }
   @media (max-width: 600px) { .gmini { display: none; } }
+  table.mt { border-collapse: collapse; width: 100%; font-size: 13px; } table.mt td, table.mt th { padding: 3px 5px; border-bottom: 1px dotted var(--line); text-align: right; white-space: nowrap; } table.mt td:nth-child(2), table.mt th:nth-child(2) { text-align: left; white-space: normal; }
+  table.mt tr.over { background: color-mix(in srgb, #e4675c 10%, transparent); } table.mt td.bad { color: #e4675c; font-weight: 600; }
+  .mb { display: inline-flex; align-items: center; margin-right: 2px; position: relative; } .mb img { width: 20px; height: 20px; border-radius: 3px; display: block; } .mb b { font-size: 10px; margin-left: 1px; } .mb.up img { width: 18px; height: 18px; opacity: .9; } .mplus { color: var(--mut); margin: 0 3px; }
   .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
 </style>
 <div class="wrap">
@@ -461,11 +464,29 @@
     const [side, i, d] = b.dataset.pp.split(','), st = plans[+side];
     if (d === 't') st.n[+i] = st.n[+i] ? 0 : 1; else st.n[+i] = Math.max(0, Math.min(9, st.n[+i] + +d));
     const box = document.getElementById('plan' + side); if (box) box.innerHTML = planBox(G, +side); });
+  // Éco vs production (S120) : minute par minute, les bâtiments actifs (chacun sans arrêt) et ce qui
+  // vient d'être lancé (coût récolté dans les 2 min avant le clic), contre tes villageois à cet instant.
   function ecoBox(g) {
-    if (!g.eco || !g.eco[0] || !g.eco[0].plan || !g.eco[0].plan.calc) return '';
-    if (plans.g !== g) { plans.g = g; plans[0] = { n: [] }; plans[1] = { n: [] }; }
-    return '<h4 style="margin-top:4px">Villageois nécessaires <span class="mut" title="6 premières min de Castle. Chaque bâtiment compté comme s’il produisait sans arrêt ; recherches et bâtiments au timing idéal (dès l’arrivée Castle, techs d’université dès qu’elle est finie), payés depuis le clic Castle. Chiffres : sans upgrade → avec chaque upgrade d’éco ; entouré = ce que le joueur avait. Change le nombre de bâtiments ou décoche une recherche pour voir ce qui passait.">ⓘ</span></h4>'
-      + '<div class="eco"><div id="plan0">' + planBox(g, 0) + '</div><div id="plan1">' + planBox(g, 1) + '</div></div>';
+    if (!g.macroT || !g.macroT[0] || !g.macroT[0].length) return '<p class="mut">Pas de calcul pour cette partie.</p>';
+    const R = [['f', 'food', 'nourriture'], ['w', 'wood', 'bois'], ['g', 'gold', 'or']], T = x => mmss(x * 1000);
+    const TYPE_ID = { 'Town Center': 621, 'Archery Range': 87, Barracks: 12, Stable: 101, 'Siege Workshop': 49 };
+    const side = (tl, n) => {
+      if (!tl || !tl.length) return '';
+      const rows = tl.map(([t, need, had, types, nr, hr, once]) => {
+        const k = {}; types.forEach(x => k[x] = (k[x] || 0) + 1);
+        const blds = Object.entries(k).map(([ty, c]) => '<span class="mb" title="' + esc(ty) + (c > 1 ? ' ×' + c : '') + ' : produit sans arrêt">'
+          + (g.buildingIcons[TYPE_ID[ty]] != null ? '<img src="' + IMG('Building', g.buildingIcons[TYPE_ID[ty]]) + '" alt="">' : esc(ty.slice(0, 3))) + (c > 1 ? '<b>' + c + '</b>' : '') + '</span>').join('');
+        const ups = (once || []).map(([c, nm, kind, pic]) => '<span class="mb up" title="' + esc(nm) + ' cliqué à ' + T(c) + ' : son coût se récolte pendant les 2 min avant">'
+          + (pic != null ? '<img src="' + IMG(kind, pic) + '" alt="">' : esc(nm.slice(0, 3))) + '</span>').join('');
+        const res = R.map(([r, img, nm]) => { const a = Math.ceil((nr[r] || 0) - 0.05), b = hr[r] || 0;
+          return '<td class="' + (a > b + 1 ? 'bad' : '') + '" title="' + nm + ' : il fallait ' + (nr[r] || 0) + ', tu en avais ' + b + '">' + a + '<span class="mut">/' + b + '</span></td>'; }).join('');
+        return '<tr class="' + (need > 1.15 * had ? 'over' : '') + '"><td>' + T(t) + '</td><td>' + blds + (ups ? '<span class="mplus">+</span>' + ups : '') + '</td>' + res
+          + '<td><b class="' + (need > 1.15 * had ? 'bad' : 'good') + '">' + need + '</b><span class="mut">/' + had + '</span></td></tr>'; }).join('');
+      return '<div class="ecoc"><h5 style="color:' + (n ? HIM_C : ME_C) + '">' + (n ? 'Lui' : 'Toi') + '</h5><table class="mt"><tr><th></th><th>Bâtiments actifs + recherches</th>'
+        + R.map(([r, img, nm]) => '<th><img class="pres" src="https://aoe2techtree.net/img/' + img + '.png" alt="' + nm + '"></th>').join('') + '<th>Total</th></tr>' + rows + '</table></div>';
+    };
+    return '<h4 style="margin-top:4px">Villageois : il fallait / tu avais <span class="mut" title="Chaque minute, de l’arrivée Castle (ou Féodal) à +10 min. Il fallait = faire tourner sans arrêt chaque bâtiment qui a produit dans les 3 min autour (son unité principale, TC compris), plus le coût des recherches et bâtiments récolté dans les 2 min avant leur clic, à ta vitesse de récolte avec tes upgrades d’éco du moment. Tu avais = villageois sur nourriture, bois et or (estimés depuis tes ordres). En rouge : plus de 15 % au-dessus.">ⓘ</span></h4>'
+      + '<div class="eco">' + side(g.macroT[0], 0) + side(g.macroT[1], 1) + '</div>';
   }
   function chart(g) {
     const [a, b] = metric === 'orders' ? g.orders : g.series[metric], n = a.length, max = Math.max(1, ...a, ...b);
