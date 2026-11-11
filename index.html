@@ -866,6 +866,9 @@
       return;
     }
     if (!civTab) {
+      // Lien interne #mine--theirs (ex. « fiche du matchup » d'une partie) : les menus suivent le lien.
+      const [hm2, ht2] = location.hash.slice(1).split('--'), m2 = civs.find(c => slug(c) === hm2), t2 = civs.find(c => slug(c) === ht2);
+      if (m2 && t2) { $('mine').value = m2; $('theirs').value = t2; }
       if (civs.length) show(); else $('view').innerHTML = '<div class="empty">Aucune fiche publiée pour l\'instant.</div>';
       return;
     }
