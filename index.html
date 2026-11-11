@@ -167,7 +167,7 @@
   @media (max-width: 600px) { .gmini { display: none; } }
   table.mt { border-collapse: collapse; width: 100%; font-size: 13px; } table.mt td, table.mt th { padding: 3px 5px; border-bottom: 1px dotted var(--line); text-align: right; white-space: nowrap; } table.mt td:nth-child(2), table.mt th:nth-child(2) { text-align: left; white-space: normal; }
   table.mt tr.over { background: color-mix(in srgb, #e4675c 10%, transparent); } table.mt td.bad { color: #e4675c; font-weight: 600; }
-  .mb { display: inline-flex; align-items: center; margin-right: 2px; position: relative; } .mb img { width: 20px; height: 20px; border-radius: 3px; display: block; } .mb b { font-size: 10px; margin-left: 1px; } .mb.up img { width: 18px; height: 18px; opacity: .9; } .mplus { color: var(--mut); margin: 0 3px; }
+  .mb { display: inline-flex; align-items: center; margin-right: 2px; position: relative; } .mb img { width: 20px; height: 20px; border-radius: 3px; display: block; } .mb { margin-right: 8px; } .mb b { position: absolute; right: -7px; top: -5px; min-width: 14px; height: 14px; padding: 0 2px; border-radius: 7px; background: var(--ink); color: var(--panel); font: 700 10px/14px system-ui; text-align: center; } .mb.up img { width: 18px; height: 18px; opacity: .9; } .mplus { color: var(--mut); margin: 0 3px; }
   .chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 12px; padding: 2px 9px; color: var(--mut); }
 </style>
 <div class="wrap">
@@ -475,7 +475,7 @@
       const rows = tl.map(([t, need, had, types, nr, hr, once]) => {
         const k = {}; types.forEach(x => k[x] = (k[x] || 0) + 1);
         const blds = Object.entries(k).map(([ty, c]) => '<span class="mb" title="' + esc(ty) + (c > 1 ? ' ×' + c : '') + ' : produit sans arrêt">'
-          + (g.buildingIcons[TYPE_ID[ty]] != null ? '<img src="' + IMG('Building', g.buildingIcons[TYPE_ID[ty]]) + '" alt="">' : esc(ty.slice(0, 3))) + (c > 1 ? '<b>' + c + '</b>' : '') + '</span>').join('');
+          + (g.buildingIcons[TYPE_ID[ty]] != null ? '<img src="' + IMG('Building', g.buildingIcons[TYPE_ID[ty]]) + '" alt="">' : esc(ty.slice(0, 3))) + (c > 1 ? '<b>×' + c + '</b>' : '') + '</span>').join('');
         const ups = (once || []).map(([c, nm, kind, pic]) => '<span class="mb up" title="' + esc(nm) + ' cliqué à ' + T(c) + ' : son coût se récolte pendant les 2 min avant">'
           + (pic != null ? '<img src="' + IMG(kind, pic) + '" alt="">' : esc(nm.slice(0, 3))) + '</span>').join('');
         const res = R.map(([r, img, nm]) => { const a = Math.ceil((nr[r] || 0) - 0.05), b = hr[r] || 0;
