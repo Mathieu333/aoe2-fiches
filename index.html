@@ -164,7 +164,7 @@
   </header>
   <div id="live" class="live" hidden></div>
   <main id="view"></main>
-  <footer>Fiches rédigées à l'avance ; rien à saisir en partie. Un brouillon n'est pas encore validé par le joueur. Mise à jour : 2026-11-10.</footer>
+  <footer>Fiches rédigées à l'avance ; rien à saisir en partie. Un brouillon n'est pas encore validé par le joueur. Mise à jour : 2026-11-11.</footer>
 </div>
 <script>
 (() => {
@@ -380,7 +380,7 @@
     P.calc.forEach(it => { const k = it.once ? null : it.t + '|' + it.u, row = k && rows.find(x => x.key === k);
       if (row) row.n++; else rows.push(Object.assign({ key: k, n: 1 }, it)); });
     rows.forEach((row, i) => { if (st.n[i] == null) st.n[i] = row.once ? 1 : row.n; });
-    const per = row => { const o = {}; Object.entries(row.c).forEach(([r, x]) => { if (x && GR[r]) o[r] = x * st.n[rows.indexOf(row)] / (row.once ? mins : 1); }); return o; };
+    const per = row => { const o = {}; Object.entries(row.c).forEach(([r, x]) => { if (x && GR[r]) o[r] = x * st.n[rows.indexOf(row)] / (row.once ? (row.m || mins) : 1); }); return o; };
     const cnt = (x, rate, once) => once ? Math.max(1, Math.round(x / rate)) : Math.ceil(x / rate - 0.05);
     const tech = (pic, cls) => pic != null ? '<img class="pt' + (cls || '') + '" src="' + IMG('Tech', pic) + '" alt="">' : '';
     const fm = foodMix(P);
@@ -396,7 +396,7 @@
       const icon = row.img && row.img[1] != null ? '<img class="pu" src="' + IMG(row.img[0], row.img[1]) + '" alt="">' : '<span class="pu">🔧</span>';
       const ctl = row.once ? '<input type="checkbox" data-pp="' + side + ',' + i + ',t"' + (off ? '' : ' checked') + '>'
         : '<span class="pn"><button data-pp="' + side + ',' + i + ',-1">−</button><b>' + st.n[i] + '</b><button data-pp="' + side + ',' + i + ',1">+</button></span>';
-      const what = row.once ? esc(row.t) + '<span class="mut"> · ' + costTxt(row.c) + ', sur ' + mins + ' min</span>'
+      const what = row.once ? esc(row.t) + '<span class="mut"> · ' + costTxt(row.c) + (row.m ? ', cliqué ' + mmss(row.at * 1000) + ' → à payer en ' + row.m + ' min depuis le clic Castle' : ', sur ' + mins + ' min') + '</span>'
         : esc(row.u) + '<span class="mut"> · ' + costTxt(row.uc || {}) + ' / ' + row.ut + ' s' + (row.pct != null ? ' · occupé ' + row.pct + ' %' : '') + '</span>';
       return '<div class="pl2' + (off ? ' off' : '') + '">' + ctl + icon + '<span class="pw">' + what + '</span>'
         + '<span class="pls">' + ['f', 'w', 'g'].filter(r => v[r]).map(r => ladder(r, v[r], row.once)).join('') + '</span></div>'; };
@@ -423,7 +423,7 @@
   function ecoBox(g) {
     if (!g.eco || !g.eco[0] || !g.eco[0].plan || !g.eco[0].plan.calc) return '';
     if (plans.g !== g) { plans.g = g; plans[0] = { n: [] }; plans[1] = { n: [] }; }
-    return '<h4 style="margin-top:4px">Villageois nécessaires <span class="mut" title="6 premières min de Castle. Chaque bâtiment compté comme s’il produisait sans arrêt ; recherches étalées sur les 6 min. Chiffres : sans upgrade → avec chaque upgrade d’éco ; entouré = ce que le joueur avait. Change le nombre de bâtiments ou décoche une recherche pour voir ce qui passait.">ⓘ</span></h4>'
+    return '<h4 style="margin-top:4px">Villageois nécessaires <span class="mut" title="6 premières min de Castle. Chaque bâtiment compté comme s’il produisait sans arrêt ; recherches et bâtiments payés entre le clic Castle et leur clic. Chiffres : sans upgrade → avec chaque upgrade d’éco ; entouré = ce que le joueur avait. Change le nombre de bâtiments ou décoche une recherche pour voir ce qui passait.">ⓘ</span></h4>'
       + '<div class="eco"><div id="plan0">' + planBox(g, 0) + '</div><div id="plan1">' + planBox(g, 1) + '</div></div>';
   }
   function chart(g) {
