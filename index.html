@@ -954,7 +954,7 @@
   const chOpt = Object.assign({ prod: true, apm: false, idle: true }, (() => { try { return JSON.parse(store('chopt') || '{}'); } catch (e) { return {}; } })());
   document.addEventListener('change', ev => { const k = ev.target.dataset && ev.target.dataset.co; if (!k || !G) return;
     chOpt[k] = ev.target.checked; store('chopt', JSON.stringify(chOpt)); renderGame(); });
-  const GTABS = [['chrono', 'Chronologie'], ['eco', 'Éco vs production'], ['details', 'Détails']];
+  const GTABS = [['chrono', 'Chronologie'], ['eco', 'Villageois pour le plan'], ['details', 'Détails']];
   let gtab = GTABS.some(([k]) => k === store('gtab')) ? store('gtab') : 'chrono';
   function renderGame() {
     const g = G, both = civs.includes(g.mine) && civs.includes(g.vs);
