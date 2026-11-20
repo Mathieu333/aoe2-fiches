@@ -54,7 +54,7 @@
   .pl { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--acc); border-radius: 6px; padding: 8px 12px; margin: 8px 0 12px; font-size: 14.5px; }
   .pl .n { color: var(--acc); } .pl .w { color: #3fb27f; } .pl .l { color: #e0605a; } .pl ul ul { padding-left: 18px; }
   .pl > ul, .pl details > ul { padding-left: 0; } .pl > ul > li, .pl details > ul > li { list-style: none; }
-  .pl .grp { color: var(--mut); font-size: 13px; } .pl .vsx { margin: 6px 0; } .pl .vsx b.o { color: var(--ink); }
+  .pl .grp { color: var(--mut); font-size: 13px; }
   .lead { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin: 6px 0; }
   .hero { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; } .hero b { font-size: 24px; }
   .big { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; } .mut { color: var(--mut); font-size: 13px; }
@@ -240,9 +240,7 @@
       + more('Pourquoi ce plan · son plan en détail · à valider',
         '<p>' + esc(c.gamePlan.action) + why(c.gamePlan.why) + '</p><p class="their"><b>Lui :</b> ' + esc(c.theirPlan.action) + why(c.theirPlan.why) + '</p>'
         + (c.uncertainties.length ? '<h4>À valider</h4><ul>' + c.uncertainties.map(u => '<li>' + esc(u) + '</li>').join('') + '</ul>' : '')
-        + '<footer>' + esc(e.version) + ' · ' + esc(e.createdAt) + ' · données ' + esc(e.dataVersion) + '</footer>')
-      + (STATS && STATS.civs[c.theirs] && PLANS ? more('Plans réels 1900+ des deux civs (replays, hors fiche)',
-        planBlock(c.mine, 'Ton plan réel 1900+') + vsBlock(c.mine, c.theirs) + planBlock(c.theirs, 'Son plan réel 1900+')) : '');
+        + '<footer>' + esc(e.version) + ' · ' + esc(e.createdAt) + ' · données ' + esc(e.dataVersion) + '</footer>');
   }
   // Civ pages: what 1900+ players do on Arabia, measured on their replays.
   const pct = t => Math.round(100 * t[0] / t[1]);
@@ -303,7 +301,8 @@
     + help('💣', 'BBC', d.bbc, '. Joueurs restés au moins 5 min en Impérial ; BBC = au moins 2 canons.') + '</div>';
 
   // Plans réels par civ (notes/tools/plans_civs.py → notes/civs/plans.json, S139) : HTML déjà échappé par le
-  // générateur ; bleu = combien c'est joué, vert / rouge = gagne ≥ / < 50 %.
+  // générateur ; bleu = combien c'est joué, vert / rouge = gagne ≥ / < 50 %. Niveau 2 seulement (S88, S140) :
+  // replié dans « Détails » de la page de civ, jamais dans la vue d'un matchup.
   const PLANS = STATS && STATS.plans;
   const planPart = (c, k) => ((PLANS && PLANS.civs[c]) || []).filter(x => x[0] === k).map(x => x[1]).join('');
   const PLAN_LEG = '<div class="legend">Replays 1900+ Arabia. Bleu = combien c\'est joué · vert = gagne ≥ 50 % · rouge = gagne moins. Corrélations, pas causes.</div>';
@@ -315,20 +314,6 @@
       + more('Plan en détail : vrais chemins, timings, UU, selon l\'ouverture adverse',
         planPart(c, 'calc') + planPart(c, 'paths') + planPart(c, 'detail') + planPart(c, 'uu') + planPart(c, 'vs') + PLAN_LEG) + '</div>';
   }
-  // Toi contre les ouvertures les plus jouées par sa civ (≥ 15 % de ses parties) : ce que ta civ joue et gagne
-  // contre cette ouverture, toutes civs adverses confondues (pas assez de parties pour ce seul matchup).
-  function vsBlock(m, t) {
-    const V = PLANS && PLANS.vs[m], dt = STATS.civs[t];
-    if (!V || !dt) return '';
-    const ops = dt.openings.filter(o => o[1][1] >= dt.all[1] * 0.15).slice(0, 3);
-    if (!ops.length) return '';
-    return '<div class="pl"><h4>Ses ouvertures → ce que ' + esc(m) + ' joue contre</h4>'
-      + ops.map(o => '<div class="vsx"><b class="o">' + esc(t) + ' ouvre ' + esc(nm(o[0])) + '</b> <span class="mut">('
-        + Math.round(100 * o[1][1] / dt.all[1]) + ' % de ses parties)</span>'
-        + (V[o[0]] || '<div class="mut">Pas assez de parties ' + esc(m) + ' contre cette ouverture (moins de 8).</div>') + '</div>').join('')
-      + '<div class="legend">' + esc(m) + ' contre cette ouverture, toutes civs adverses confondues. Bleu = combien c\'est joué · vert = gagne ≥ 50 % · rouge = gagne moins.</div></div>';
-  }
-
   // Matchup sans fiche rédigée : ce que font les joueurs 1900+ de chaque civ (replays), et le face-à-face.
   function autoMatchup(m, t) {
     const dm = STATS && STATS.civs[m], dt = STATS && STATS.civs[t];
@@ -338,9 +323,7 @@
       + '<span class="draft" title="Pas de fiche rédigée pour ce matchup : ce que jouent les joueurs 1900+ sur Arabia, d\'après leurs replays">AUTO · replays 1900+</span></div>'
       + '<p class="their">Face à face 1900+ : ' + (h ? esc(m) + ' gagne <b>' + winNum(h) + '</b>' + (h[1] < 10 ? ' (trop peu de parties)' : '') : 'aucune partie') + '</p>'
       + '<h4>Toi — <a href="#civ/' + slug(m) + '">' + esc(m) + '</a> · ' + winNum(dm.all) + '</h4>' + phaseTiles(dm)
-      + planBlock(m, 'Ton plan réel 1900+') + vsBlock(m, t)
       + '<h4>Lui — <a href="#civ/' + slug(t) + '">' + esc(t) + '</a> · ' + winNum(dt.all) + '</h4>' + phaseTiles(dt)
-      + planBlock(t, 'Son plan réel 1900+')
       + '<div class="legend">Top 3 par phase : % des joueurs qui le jouent · % de victoires, toutes parties de la civ (pas seulement ce matchup)</div>';
   }
 
@@ -412,10 +395,10 @@
       + '<span class="mut">de victoires · ' + d.all[1] + ' parties 1900+ Arabia</span></div>'
       // Niveau 1 (4 s) : ce que joue la majorité, une tuile par âge. Tout le reste se déplie.
       + '<div class="legend">Top 3 par phase : % des joueurs qui le jouent · % de victoires</div>'
-      + phaseTiles(d) + planBlock(c) + helps(d)
+      + phaseTiles(d) + helps(d)
       + (lead ? leadLine(lead) : '')
       + prosBlock(c)
-      + more('Détails', '<div class="cols">'
+      + more('Détails', planBlock(c) + '<div class="cols">'
         + col(2, 'OUVERTURE', d.openings.map(o => [o[0], o[1], ', clic Castle ' + o[2]]), d.all[1], false)
         + col(3, 'CASTLE', d.castle, d.castleN, true)
         + col(4, 'IMPÉRIAL', d.imperial, d.impN, true) + '</div>'
